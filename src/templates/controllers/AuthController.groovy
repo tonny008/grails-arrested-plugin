@@ -1,3 +1,4 @@
+@package.line@
 import grails.converters.JSON
 import grails.converters.XML
 import arrested.ArrestedController

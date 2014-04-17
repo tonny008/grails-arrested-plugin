@@ -18,7 +18,7 @@ function @controller.name@(DAO, $rootScope)
 
     $rootScope.getAll@class.name@ = function () {
         //get all
-        DAO.query({serverHost: $rootScope.appConfig.serverHost, appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, controller: '@class.instance@', action: 'list'},
+        DAO.query({appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, controller: '@class.instance@', action: 'list'},
             function (result) {
                 $rootScope.@class.instance@s = result;
             },
@@ -44,7 +44,7 @@ function @controller.name@(DAO, $rootScope)
     }
 
     $rootScope.save@class.name@ = function () {
-        DAO.save({serverHost: $rootScope.appConfig.serverHost, appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, instance:$rootScope.@class.instance@, controller:'@class.instance@', action:'save'},
+        DAO.save({appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, instance:$rootScope.@class.instance@, controller:'@class.instance@', action:'save'},
         function (result) {
             $rootScope.@class.instance@ = result;
             $rootScope.flags.save = true;
@@ -59,7 +59,7 @@ function @controller.name@(DAO, $rootScope)
 }
 
 $rootScope.update@class.name@ = function () {
-    DAO.update({serverHost: $rootScope.appConfig.serverHost, appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, instance:$rootScope.@class.instance@, controller:'@class.instance@', action:'update'},
+    DAO.update({appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, instance:$rootScope.@class.instance@, controller:'@class.instance@', action:'update'},
     function (result) {
         $rootScope.flags.save = true;
     },
@@ -73,7 +73,7 @@ $rootScope.update@class.name@ = function () {
 }
 
 $rootScope.edit@class.name@ = function (@class.instance@){
-    DAO.get({serverHost: $rootScope.appConfig.serverHost, appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, id: @class.instance@.id, controller:'@class.instance@', action:'show'},
+    DAO.get({appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, id: @class.instance@.id, controller:'@class.instance@', action:'show'},
 function (result) {
     $rootScope.@class.instance@ = result;
     window.location.href = "#/@class.instance@/edit"
@@ -86,7 +86,7 @@ function (error) {
 }
 
 $rootScope.confirmDelete@class.name@ = function () {
-    DAO.delete({serverHost: $rootScope.appConfig.serverHost, appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, id: $rootScope.@class.instance@.id, controller:'@class.instance@', action:'delete'},
+    DAO.delete({appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, id: $rootScope.@class.instance@.id, controller:'@class.instance@', action:'delete'},
     function (result) {
         if (result.response == "@class.name@_deleted") {
             window.location.href = "#/@class.instance@/list"

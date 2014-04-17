@@ -55,7 +55,8 @@ class @controller.name@ extends ArrestedController {
                         }
                         <%}else{%>
                         if(data.${p.name}) instance.${p.name} = data.${p.name}
-                        <%}}}%>if(instance.save(flush: true)){
+                        <%}}}%>
+            if(instance.save(flush: true)){
                 withFormat {
                     xml {
                         response.status = 200

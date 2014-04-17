@@ -3,6 +3,8 @@
 import org.junit.*
 import static org.junit.Assert.*
 import grails.test.mixin.*
+import arrested.ArrestedUser
+import arrested.ArrestedToken
 import grails.test.mixin.support.*
 
 @TestFor(@controller.name@)

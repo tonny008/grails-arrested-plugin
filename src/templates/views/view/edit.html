@@ -57,10 +57,10 @@
     return "<input name=\"${property.name}\" type='text' data-ng-model='${domainTitle}.${property.name}' />"
     } else {
     def sb = new StringBuilder("")
-    if ("textarea" == cp.widget || (cp.maxSize > 250 && !cp.password && !cp.inList)) {
+    if ("textarea" == cp.widget || (cp."${property.name}".maxSize > 250 && !cp.password && !cp.inList)) {
     sb << '<textArea name="' << property.name << '"'
     sb << ' cols="40" rows="5"'
-    if (cp.maxSize) sb << ' maxlength="' << cp.maxSize << '"'
+    if (cp."${property.name}".maxSize) sb << ' maxlength="' << cp."${property.name}".maxSize << '"'
     if (isRequired()) sb << ' required=""'
     sb << " data-ng-model='${domainTitle}.${property.name}'"
     sb << '/>'
@@ -75,8 +75,8 @@
     sb << '<input type="text"'
     }
     sb << ' name="' << property.name << '"'
-    if (cp.maxSize) sb << ' maxlength="' << cp.maxSize << '"'
-    if (cp.matches) sb << ' pattern="${' << "${domainInstance}.constraints.${property.name}.matches" << '}"'
+    if (cp."${property.name}".maxSize) sb << ' maxlength="' << cp."${property.name}".maxSize << '"'
+    if (cp."${property.name}".matches) sb << ' pattern="${' << "${domainInstance}.constraints.${property.name}.matches" << '}"'
     if (isRequired()) sb << ' required=""'
     sb << " data-ng-model='${domainTitle}.${property.name}' "
     sb << '/>'
@@ -94,7 +94,7 @@
     return "<input type=\"checkbox\"  name=\"${property.name}\" data-ng-model='${domainTitle}.${property.name}'  />"
     } else {
     def sb = new StringBuilder("<input type=\"checkbox\"  name=\"${property.name}\" ")
-    if (cp.widget) sb << "widget=\"${cp.widget}\" ";
+    if (cp.widget) sb << "widget=\"${cp."${property.name}".widget}\" ";
     cp.attributes.each { k, v ->
     sb << "${k}=\"${v}\" "
     }
@@ -114,7 +114,7 @@
     def sb = new StringBuilder()
     if (cp.range) {
     sb << '<select name="' << property.name << '"'
-    sb << ' ng-options="${' << "${cp.range.from}..${cp.range.to}" << '}"'
+    sb << ' ng-options="${' << "${cp."${property.name}".range.from}..${cp."${property.name}".range.to}" << '}"'
     sb << ' class="range"'
     if (isRequired()) sb << ' required=""'
     sb << " data-ng-model='${domainTitle}.${property.name}' "
@@ -128,14 +128,15 @@
     sb << renderNoSelection(property)
     sb << '/>'
     } else {
+    
     sb << '<input'
     sb << ' name="' << property.name << '"'
     if (property.type in [float, double, Float, Double, BigDecimal]) {
     sb << " data-ng-model='${domainTitle}.${property.name}' "
     } else {
     sb << ' type="number"'
-    if (cp.min != null) sb << ' min="' << cp.min << '"'
-    if (cp.max != null) sb << ' max="' << cp.max << '"'
+    if (cp."${property.name}".min != null) sb << ' min="' << cp."${property.name}".min << '"'
+    if (cp."${property.name}".max != null) sb << ' max="' << cp."${property.name}".max << '"'
     sb << " data-ng-model='${domainTitle}.${property.name}' "
     }
     if (isRequired()) sb << ' required=""'
@@ -147,6 +148,9 @@
 
     private renderManyToOne(domainClass,property) {
     if (property.association) {
+    if (property.type.name.indexOf('.')>-1) {
+    	property.type.name=property.type.name.substring(property.type.name.lastIndexOf('.')+1,property.type.name.length())
+    }
     def sb = new StringBuilder()
     sb << '<select'
     // id is "x" and name is "x.id" as the label will have for="x" and "." in an id will confuse CSS
@@ -214,8 +218,8 @@
     return "\${${domainInstance}?.${property.name}?.toString()}"
     } else {
     def sb = new StringBuilder("<input type=\"date\" name=\"${property.name}\" ")
-    if (cp.format) sb << "format=\"${cp.format}\" "
-    if (cp.widget) sb << "widget=\"${cp.widget}\" "
+    if (cp.format) sb << "format=\"${cp."${property.name}".format}\" "
+    if (cp.widget) sb << "widget=\"${cp."${property.name}".widget}\" "
     cp.attributes.each { k, v ->
     sb << "${k}=\"${v}\" "
     }
@@ -234,7 +238,7 @@
     return "<input type=\"time\" name=\"${property.name}\" data-ng-model='${domainTitle}.${property.name}' />"
     } else {
     def sb = new StringBuilder("<input type=\"time\" name=\"${property.name}\" ")
-    if (cp.widget) sb << "widget=\"${cp.widget}\" ";
+    if (cp."${property.name}".widget) sb << "widget=\"${cp."${property.name}".widget}\" ";
     cp.attributes.each { k, v ->
     sb << "${k}=\"${v}\" "
     }

@@ -1,3 +1,4 @@
+@package.line@
 class ArrestedToken {
     String token
     Boolean valid

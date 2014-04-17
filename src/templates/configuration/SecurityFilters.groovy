@@ -1,3 +1,4 @@
+@package.line@
 class SecurityFilters {
     def filters = {
         arrested(uri: "/**") {

@@ -1,5 +1,5 @@
 includeTargets << grailsScript("_GrailsArgParsing")
-includeTargets << new File (arrestedPluginDir, "Scripts/_ArrestedInternal.groovy")
+includeTargets << new File (arrestedPluginDir, "scripts/_ArrestedInternal.groovy")
 
 USAGE = """
    grails create-arrested-app

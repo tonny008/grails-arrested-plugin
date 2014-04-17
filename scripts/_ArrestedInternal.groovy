@@ -1,22 +1,44 @@
+import grails.util.Holders
+import grails.util.Metadata
 import groovy.text.SimpleTemplateEngine
 import groovy.text.Template
+
 import org.codehaus.groovy.grails.plugins.GrailsPluginManager
 import org.codehaus.groovy.grails.plugins.PluginManagerHolder
 import org.springframework.core.io.ResourceLoader
-import grails.util.Metadata
-
 includeTargets << grailsScript("_GrailsBootstrap")
 includeTargets << grailsScript("_GrailsCreateArtifacts")
 includeTargets << grailsScript("_GrailsCompile")
-
+overwriteAll = false
 installTemplate = { String artefactName, String artefactPath, String templatePath ->
     installTemplateEx(artefactName, artefactPath, templatePath, artefactName, null)
 }
+okToWrite = { String dest ->
+	def file = new File(dest)
+	if (overwriteAll || !file.exists()) {
+		return true
+	}
+	
+	String propertyName = "file.overwrite.$file.name"
+	ant.input(addProperty: propertyName, message: "$dest exists, ok to overwrite?", validargs: 'y,n,a', defaultvalue: 'y')
+	
+	if (ant.antProject.properties."$propertyName" == 'n') {
+		return false
+	}
+	
+	if (ant.antProject.properties."$propertyName" == 'a') {
+		overwriteAll = true
+	}
+	true
+}
+
 installTemplateEx = { String artefactName, String artefactPath, String templatePath, String templateName, Closure c ->
     // Copy over the standard auth controller.
     def artefactFile = "${basedir}/${artefactPath}/${artefactName}"
-
-    if (new File(artefactFile).exists()) {
+	if (!okToWrite(artefactFile)) {
+		return
+	}
+    /*if (new File(artefactFile).exists()) {
         ant.input(
                 addProperty: "${args}.${artefactName}.overwrite",
                 message: "${artefactName} already exists. Overwrite? [y/n]")
@@ -24,7 +46,7 @@ installTemplateEx = { String artefactName, String artefactPath, String templateP
         if (ant.antProject.properties."${args}.${artefactName}.overwrite" == "n") {
             return
         }
-    }
+    }*/
 
     // Copy the template file to the 'grails-app/controllers' directory.
     templateFile = "${arrestedPluginDir}/src/templates/${templatePath}/${templateName}"
@@ -50,8 +72,10 @@ installTemplateView = { domainClass, String artefactName, String artefactPath, S
     def cp
 
     def artefactFile = "${basedir}/${artefactPath}/${artefactName}"
-
-    if (new File(artefactFile).exists()) {
+	if (!okToWrite(artefactFile)) {
+		return
+	}
+    /*if (new File(artefactFile).exists()) {
         ant.input(
                 addProperty: "${args}.${artefactName}.overwrite",
                 message: "${artefactName} already exists. Overwrite? [y/n]")
@@ -59,7 +83,8 @@ installTemplateView = { domainClass, String artefactName, String artefactPath, S
         if (ant.antProject.properties."${args}.${artefactName}.overwrite" == "n") {
             return
         }
-    }
+    }*/
+	
     // Copy the template file to the 'grails-app/controllers' directory.
     templateFile = "${arrestedPluginDir}/src/templates/${templatePath}/${templateName}"
     if (!new File(templateFile).exists()) {
@@ -113,7 +138,7 @@ target(createViewController: "Creates view") {
 }
 target(createToken: "Create a token class") {
     depends(compile)
-    def (pkg, prefix) = parsePrefix()
+    def (pkg, prefix) = parsePrefix1()
     installTemplateEx("ArrestedToken.groovy", "grails-app/domain${packageToPath(pkg)}", "classes", "ArrestedToken.groovy") {
         ant.replace(file: artefactFile) {
             ant.replacefilter(token: "@package.line@", value: (pkg ? "package ${pkg}\n\n" : ""))
@@ -123,7 +148,7 @@ target(createToken: "Create a token class") {
 }
 target(createUser: "Create a user class") {
     depends(compile)
-    def (pkg, prefix) = parsePrefix()
+    def (pkg, prefix) = parsePrefix1()
     installTemplateEx("ArrestedUser.groovy", "grails-app/domain${packageToPath(pkg)}", "classes", "ArrestedUser.groovy") {
         ant.replace(file: artefactFile) {
             ant.replacefilter(token: "@package.line@", value: (pkg ? "package ${pkg}\n\n" : ""))
@@ -133,7 +158,7 @@ target(createUser: "Create a user class") {
 }
 target(createUserController: "Create a user class") {
     depends(compile)
-    def (pkg, prefix) = parsePrefix()
+    def (pkg, prefix) = parsePrefix1()
     installTemplateEx("ArrestedUserController.groovy", "grails-app/controllers${packageToPath(pkg)}", "controllers", "ArrestedUserController.groovy") {
         ant.replace(file: artefactFile) {
             ant.replacefilter(token: "@package.line@", value: (pkg ? "package ${pkg}\n\n" : ""))
@@ -157,7 +182,7 @@ target(createUserController: "Create a user class") {
 }
 target(createArrestedController: "Create the controller Arrested") {
     depends(compile)
-    def (pkg, prefix) = parsePrefix()
+    def (pkg, prefix) = parsePrefix1()
     installTemplateEx("ArrestedController.groovy", "grails-app/controllers/arrested", "controllers", "ArrestedController.groovy") {
         ant.replace(file: artefactFile) {
             ant.replacefilter(token: "@package.line@", value: (pkg ? "package ${pkg}\n\n" : ""))
@@ -168,7 +193,7 @@ target(createArrestedController: "Create the controller Arrested") {
 }
 target(createAuth: "Create a authentication controller") {
     depends(compile)
-    def (pkg, prefix) = parsePrefix()
+    def (pkg, prefix) = parsePrefix1()
     installTemplateEx("AuthController.groovy", "grails-app/controllers${packageToPath(pkg)}", "controllers", "AuthController.groovy") {
         ant.replace(file: artefactFile) {
             ant.replacefilter(token: "@package.line@", value: (pkg ? "package ${pkg}\n\n" : ""))
@@ -190,7 +215,7 @@ target(createAuth: "Create a authentication controller") {
 }
 target(createFilter: "Create a security filter") {
     depends(compile)
-    def (pkg, prefix) = parsePrefix()
+    def (pkg, prefix) = parsePrefix1()
     installTemplateEx("SecurityFilters.groovy", "grails-app/conf${packageToPath(pkg)}", "configuration", "SecurityFilters.groovy") {
         ant.replace(file: artefactFile) {
             ant.replacefilter(token: "@package.line@", value: (pkg ? "package ${pkg}\n\n" : ""))
@@ -311,19 +336,20 @@ target(createAngularIndex: "Create the angular file configuration") {
         configFile.delete()
     }
     configFile.createNewFile()
+	def shortname= Metadata.current.'app.name'.toString().replaceAll(/(\_|\-|\.)/, '')
     configFile.withWriterAppend { BufferedWriter writer ->
         writer.writeLine "'use strict';"
-        writer.writeLine "var " + Metadata.current.'app.name' + " = angular.module('" + Metadata.current.'app.name' + "', ['services','ngRoute']);"
-        writer.writeLine Metadata.current.'app.name' + ".config([\n" +
+        writer.writeLine "var " + shortname + " = angular.module('" + Metadata.current.'app.name' + "', ['services','ngRoute']);"
+        writer.writeLine shortname + ".config([\n" +
                 "    '\$routeProvider',\n" +
                 "    function(\$routeProvider) {\n" +
                 "        \$routeProvider."
-        writer.writeLine "            when('/login', {templateUrl: 'static/Views/auth/login.html', controller: 'UserCtrl'})."
+        writer.writeLine "            when('/login', {templateUrl: 'Views/auth/login.html', controller: 'UserCtrl'})."
         names.each {
-            writer.writeLine "            when('/" + it.propertyName + "/create', {templateUrl: 'static/Views/" + it.propertyName + "/edit.html', controller: '" + it.className + "Ctrl'})."
-            writer.writeLine "            when('/" + it.propertyName + "/edit', {templateUrl: 'static/Views/" + it.propertyName + "/edit.html', controller: '" + it.className + "Ctrl'})."
-            writer.writeLine "            when('/" + it.propertyName + "/list', {templateUrl: 'static/Views/" + it.propertyName + "/list.html', controller: '" + it.className + "Ctrl'})."
-            writer.writeLine "            when('/" + it.propertyName + "', {templateUrl: 'static/Views/" + it.propertyName + "/list.html', controller: '" + it.className + "Ctrl'})."
+            writer.writeLine "            when('/" + it.propertyName + "/create', {templateUrl: 'Views/" + it.propertyName + "/edit.html', controller: '" + it.className + "Ctrl'})."
+            writer.writeLine "            when('/" + it.propertyName + "/edit', {templateUrl: 'Views/" + it.propertyName + "/edit.html', controller: '" + it.className + "Ctrl'})."
+            writer.writeLine "            when('/" + it.propertyName + "/list', {templateUrl: 'Views/" + it.propertyName + "/list.html', controller: '" + it.className + "Ctrl'})."
+            writer.writeLine "            when('/" + it.propertyName + "', {templateUrl: 'Views/" + it.propertyName + "/list.html', controller: '" + it.className + "Ctrl'})."
         }
         writer.writeLine "            otherwise({redirectTo: '/login'});"
         writer.writeLine "    }"
@@ -610,7 +636,16 @@ private parsePrefix() {
     }
     return [pkg, prefix]
 }
-
+private parsePrefix1() {
+	def prefix = "Arrested"
+	def pkg = ""
+	if (argsMap['params'][0] != null) {
+		def givenValue = argsMap['params'][0].split(/\./, -1)
+		prefix = givenValue[-1]
+		pkg = givenValue.size() > 1 ? givenValue[0..-2].join('.') : ""
+	}
+	return [pkg ?: 'arrested', prefix]
+}
 private packageToPath(String pkg) {
     return pkg ? '/' + pkg.replace('.' as char, '/' as char) : ''
 }

@@ -4,14 +4,16 @@
     <div data-ng-show="errors.showErrors" class="red">
         <p data-ng-show="errors.showServerError">"Can not connect to the server, try later"</p>
     </div>
+     <form name="${domainTitle}Form"  novalidate>
     <div>
     <div>
     <div>
     <div>
+   
         <p></p>
         <a class="btn btn-primary btn-primary" onclick="window.location.href = '#/${domainTitle}/list'"><span class="glyphicon glyphicon-align-justify"></span>  List</a>
-        <a class="btn btn-primary btn-success" data-ng-hide="${domainTitle}.id" data-ng-click="manualSave${className}()"><span class="glyphicon glyphicon-floppy-disk"></span> Save</a>
-        <a class="btn btn-primary btn-success" data-ng-show="${domainTitle}.id" data-ng-click="manualSave${className}()"><span class="glyphicon glyphicon-floppy-disk"></span> Update</a>
+        <a class="btn btn-primary btn-success" data-ng-hide="${domainTitle}.id"  ng-disabled="${domainTitle}Form.\$invalid" ng-enabled="!${domainTitle}Form.\$invalid" data-ng-click="manualSave${className}()"><span class="glyphicon glyphicon-floppy-disk"></span> Save</a>
+        <a class="btn btn-primary btn-success" data-ng-show="${domainTitle}.id"  ng-disabled="${domainTitle}Form.\$invalid" ng-enabled="!${domainTitle}Form.\$invalid" data-ng-click="manualSave${className}()"><span class="glyphicon glyphicon-floppy-disk"></span> Update</a>
         <a class="btn btn-primary btn-danger" data-ng-show="${domainTitle}.id"  data-ng-click="confirmDelete${className}()"><span class="glyphicon glyphicon-trash"></span> Delete</a>
         <p></p>
     </div>
@@ -57,30 +59,53 @@
     return "<input name=\"${property.name}\" type='text' data-ng-model='${domainTitle}.${property.name}' />"
     } else {
     def sb = new StringBuilder("")
-    if ("textarea" == cp.widget || (cp."${property.name}".maxSize > 250 && !cp.password && !cp.inList)) {
+    if ("textarea" == cp."${property.name}".widget || (cp."${property.name}".maxSize > 250 && !cp.password && !cp.inList)) {
     sb << '<textArea name="' << property.name << '"'
     sb << ' cols="40" rows="5"'
-    if (cp."${property.name}".maxSize) sb << ' maxlength="' << cp."${property.name}".maxSize << '"'
-    if (isRequired()) sb << ' required=""'
+    if (cp."${property.name}".minSize) sb << ' ng-minlength="' << cp."${property.name}".minSize << '"'
+    if (cp."${property.name}".maxSize) sb << ' ng-maxlength="' << cp."${property.name}".maxSize << '"'
     sb << " data-ng-model='${domainTitle}.${property.name}'"
     sb << '/>'
     } else {
-    if (cp.password) {
+    if (cp."${property.name}".password) {
     sb << '<input type="password"'
-    } else if (cp.url) {
+    } else if (cp."${property.name}".url) {
     sb << '<input type="url"'
-    } else if (cp.email) {
+    } else if (cp."${property.name}".email) {
     sb << '<input type="email"'
     } else {
     sb << '<input type="text"'
     }
     sb << ' name="' << property.name << '"'
-    if (cp."${property.name}".maxSize) sb << ' maxlength="' << cp."${property.name}".maxSize << '"'
-    if (cp."${property.name}".matches) sb << ' pattern="${' << "${domainInstance}.constraints.${property.name}.matches" << '}"'
+    if (cp."${property.name}".minSize) sb << ' ng-minlength="' << cp."${property.name}".minSize << '"'
+    if (cp."${property.name}".maxSize) sb << ' ng-maxlength="' << cp."${property.name}".maxSize << '"'
+    if (cp."${property.name}".matches) sb << ' ng-pattern="${' << "${domainInstance}.constraints.${property.name}.matches" << '}"'
     if (isRequired()) sb << ' required=""'
     sb << " data-ng-model='${domainTitle}.${property.name}' "
     sb << '/>'
     }
+    if (isRequired()) {
+     	sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.required" class="help-block">required.</p>'
+    }
+    sb << '\n\t\t<p ng-show="!'+domainTitle+'Form.'+property.name+'.$pristine && '+domainTitle+'Form.'+property.name+'.$invalid" class="help-block">invalid '+property.name+''
+    if (cp."${property.name}".minSize)  {
+    	sb << ' min: ' << cp."${property.name}".minSize << ''
+    }
+    if (cp."${property.name}".maxSize)  {
+     sb << '  , max: '<< cp."${property.name}".maxSize <<'' 
+    }
+    sb << '</p>'
+    
+    if (cp."${property.name}".matches) {
+    	sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.pattern" class="help-block">'+property.name+' not valid.</p>'
+    }
+    if (cp."${property.name}".minSize) {
+        sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.minlength" class="help-block">'+property.name+' is too short.</p>'
+    }         
+    if (cp."${property.name}".maxSize) {
+        sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.maxlength" class="help-block">'+property.name+' is too long.</p>\n'
+    }       
+    
     sb as String
     }
     }
@@ -94,7 +119,7 @@
     return "<input type=\"checkbox\"  name=\"${property.name}\" data-ng-model='${domainTitle}.${property.name}'  />"
     } else {
     def sb = new StringBuilder("<input type=\"checkbox\"  name=\"${property.name}\" ")
-    if (cp.widget) sb << "widget=\"${cp."${property.name}".widget}\" ";
+    if (cp."${property.name}".widget) sb << "widget=\"${cp."${property.name}".widget}\" ";
     cp.attributes.each { k, v ->
     sb << "${k}=\"${v}\" "
     }
@@ -112,7 +137,7 @@
     }
     } else {
     def sb = new StringBuilder()
-    if (cp.range) {
+    if (cp."${property.name}".range) {
     sb << '<select name="' << property.name << '"'
     sb << ' ng-options="${' << "${cp."${property.name}".range.from}..${cp."${property.name}".range.to}" << '}"'
     sb << ' class="range"'
@@ -120,7 +145,7 @@
     sb << " data-ng-model='${domainTitle}.${property.name}' "
     sb << renderNoSelection(property)
     sb << '/>'
-    } else if (cp.inList) {
+    } else if (cp."${property.name}".inList) {
     sb << '<select name="' << property.name << '"'
     sb << ' ng-options="${' << "${domainInstance}.constraints.${property.name}.inList" << '}"'
     if (isRequired()) sb << ' required=""'
@@ -142,6 +167,21 @@
     if (isRequired()) sb << ' required=""'
     sb << '/>'
     }
+    if (isRequired()) {
+     	sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.required" class="help-block">required.</p>'
+    }
+    sb << '\n\t\t<p ng-show="!'+domainTitle+'Form.'+property.name+'.$pristine && '+domainTitle+'Form.'+property.name+'.$invalid" class="help-block">invalid '+property.name+''
+    if (cp."${property.name}".min != null) {
+    	sb << ' min: ' << cp."${property.name}".min << ''
+    }
+    if (cp."${property.name}".max != null) {
+     sb << ' max: ' << cp."${property.name}".max << ''
+    } 
+    sb << '</p>'
+    
+    sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.number" class="help-block">'+property.name+' is not valid.</p>'
+             
+
     sb as String
     }
     }
@@ -214,12 +254,12 @@
     if (!cp) {
     return "<input type=\"date\" name=\"${property.name}\" precision=\"${precision}\" data-ng-model='${domainTitle}.${property.name}' />"
     } else {
-    if (!cp.editable) {
+    if (!cp."${property.name}".editable) {
     return "\${${domainInstance}?.${property.name}?.toString()}"
     } else {
     def sb = new StringBuilder("<input type=\"date\" name=\"${property.name}\" ")
-    if (cp.format) sb << "format=\"${cp."${property.name}".format}\" "
-    if (cp.widget) sb << "widget=\"${cp."${property.name}".widget}\" "
+    if (cp."${property.name}".format) sb << "format=\"${cp."${property.name}".format}\" "
+    if (cp."${property.name}".widget) sb << "widget=\"${cp."${property.name}".widget}\" "
     cp.attributes.each { k, v ->
     sb << "${k}=\"${v}\" "
     }
@@ -313,6 +353,7 @@
         </div>
         <%  }
         } %>
+        
     </div>
     </div>
     </div>
@@ -320,4 +361,5 @@
     </div>
     </div>
     </div>
+    </form>
 </div>

@@ -9,7 +9,7 @@ AngularJs + RESTful = Arrested
 # Installation:
 
 Add plugin Dependency in BuildConfig.groovy :
->compile ":arrested:1.8"
+>compile ":arrested:1.9"
 
 
 # Getting Started
@@ -105,6 +105,7 @@ Nothing noticed / reported at the moment -
 
 ### Version info:
 ```
+1.9: 	Basic AngularJS form validation added to master edit.html - numbers min/max validation string minSize/maxSize/pattern validations. Form update/Save disabled until form is valid
 1.8 :	Should have tested 1.7 properly - whilst it worked in one field instance, bugs with multiElement. Now fixed
 
 1.7 :	edit.html constraints not working - now fixed, added extra sha256Password encryption to testUnit for controller

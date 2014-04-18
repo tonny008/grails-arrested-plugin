@@ -1,5 +1,5 @@
 class ArrestedGrailsPlugin {
-    def version = "1.8"
+    def version = "1.9"
     def grailsVersion = "2.0 > *"
     def title = "Arrested Plugin"
     def description = 'Generates RESTful controllers for domain classes and maps them in UrlMappings, generates single-page AngularJS-based views, and provides simple token-based security'

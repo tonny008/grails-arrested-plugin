@@ -17,6 +17,26 @@ function UserCtrl($rootScope, DAO){
         $rootScope.errors = {forgotPassword:false, showErrors:false, showMessage:false, showFunctionError:false, showServerError:false, showPasswordError:false};
     };
 
+    $rootScope.signup = function(){
+       	  DAO.save({appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, controller:'arrestedUser', action:'save', instance:$rootScope.user},
+     		      
+             function(result){
+                 if(result.response == "bad_login"){
+                     $rootScope.errors.showErrors = true;
+                     $rootScope.errors.showFunctionError = true;
+                 }
+                 else{
+                     $rootScope.user = result;
+                     $rootScope.appConfig.token = result.token;
+                     delete $rootScope.user.token;
+                     window.location.href="#/"
+                 }
+             },
+             function(error){
+                 $rootScope.errors.showErrors = true;
+                 $rootScope.errors.showServerError = true;
+             });
+     };
     $rootScope.login = function(){
         DAO.save({appName: $rootScope.appConfig.appName, controller:'auth', action:'login', username:$rootScope.user.username, passwordHash:$rootScope.user.passwordHash},
             function(result){

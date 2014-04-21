@@ -11,10 +11,12 @@
     <div>
    
         <p></p>
-        <a class="btn btn-primary btn-primary" onclick="window.location.href = '#/${domainTitle}/list'"><span class="glyphicon glyphicon-align-justify"></span>  List</a>
-        <a class="btn btn-primary btn-success" data-ng-hide="${domainTitle}.id"  ng-disabled="${domainTitle}Form.\$invalid" ng-enabled="!${domainTitle}Form.\$invalid" data-ng-click="manualSave${className}()"><span class="glyphicon glyphicon-floppy-disk"></span> Save</a>
-        <a class="btn btn-primary btn-success" data-ng-show="${domainTitle}.id"  ng-disabled="${domainTitle}Form.\$invalid" ng-enabled="!${domainTitle}Form.\$invalid" data-ng-click="manualSave${className}()"><span class="glyphicon glyphicon-floppy-disk"></span> Update</a>
-        <a class="btn btn-primary btn-danger" data-ng-show="${domainTitle}.id"  data-ng-click="confirmDelete${className}()"><span class="glyphicon glyphicon-trash"></span> Delete</a>
+        
+        <a class="btn btn-primary btn-primary" onclick="window.location.href = '#/${domainTitle}/list'"  title="\${message(code: 'default.list.label',args:['${className}'], default: 'List')}"><span class="glyphicon glyphicon-align-justify"></span> 	<g:message code="default.list.label" args="['${className}']" default="List"/></a>
+  
+        <a class="btn btn-primary btn-success" data-ng-hide="${domainTitle}.id"  ng-disabled="${domainTitle}Form.\$invalid" title="\${message(code: 'default.save.label',args:['${className}'], default: 'Save')}" ng-enabled="!${domainTitle}Form.\$invalid" data-ng-click="manualSave${className}()"><span class="glyphicon glyphicon-floppy-disk"></span> <g:message code="default.save.label" args="['${className}']" default="Save"/></a>
+        <a class="btn btn-primary btn-success" data-ng-show="${domainTitle}.id"  ng-disabled="${domainTitle}Form.\$invalid" title="\${message(code: 'default.update.label',args:['${className}'], default: 'Update')}" ng-enabled="!${domainTitle}Form.\$invalid" data-ng-click="manualSave${className}()"><span class="glyphicon glyphicon-floppy-disk"></span> <g:message code="default.update.label" args="['${className}']" default="Update"/></a>
+        <a class="btn btn-primary btn-danger" data-ng-show="${domainTitle}.id"  title="\${message(code: 'default.delete.label',args:['${className}'], default: 'Delete')}" data-ng-click="confirmDelete${className}()"><span class="glyphicon glyphicon-trash"></span> <g:message code="default.update.label" args="['${className}']" default="Delete"/></a>
         <p></p>
     </div>
     <div>
@@ -85,25 +87,25 @@
     sb << '/>'
     }
     if (isRequired()) {
-     	sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.required" class="help-block">required.</p>'
+     	sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.required" class="help-block"><g:message code="default.required.label" args="[\''+property.name+'\']" default="Required"/></p>\n'
     }
-    sb << '\n\t\t<p ng-show="!'+domainTitle+'Form.'+property.name+'.$pristine && '+domainTitle+'Form.'+property.name+'.$invalid" class="help-block">invalid '+property.name+''
+    sb << '\n\t\t<p ng-show="!'+domainTitle+'Form.'+property.name+'.$pristine && '+domainTitle+'Form.'+property.name+'.$invalid" class="help-block"><g:message code="default.invalid.label" args="[\''+property.name+'\']" default="Invalid '+property.name+'"/> '
     if (cp."${property.name}".minSize)  {
-    	sb << ' min: ' << cp."${property.name}".minSize << ''
+    	sb << '<g:message code="default.minSize.label" args="[\''+cp."${property.name}".minSize+'\']" default=" minSize: '+cp."${property.name}".minSize+' "/>\n'
     }
     if (cp."${property.name}".maxSize)  {
-     sb << '  , max: '<< cp."${property.name}".maxSize <<'' 
+     sb << '<g:message code="default.maxSize.label" args="[\''+cp."${property.name}".maxSize+'\']" default=" maxSize: '+cp."${property.name}".maxSize+' "/>\n'
     }
     sb << '</p>'
     
     if (cp."${property.name}".matches) {
-    	sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.pattern" class="help-block">'+property.name+' not valid.</p>'
+    	sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.pattern" class="help-block"><g:message code="default.pattern.label" args="[\''+property.name+'\']" default="Invalid '+property.name+'"/></p>\n'
     }
     if (cp."${property.name}".minSize) {
-        sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.minlength" class="help-block">'+property.name+' is too short.</p>'
+        sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.minlength" class="help-block"><g:message code="default.short.label" args="[\''+property.name+'\']" default="'+property.name+' too short"/></p>\n'
     }         
     if (cp."${property.name}".maxSize) {
-        sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.maxlength" class="help-block">'+property.name+' is too long.</p>\n'
+        sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.maxlength" class="help-block"><g:message code="default.long.label" args="[\''+property.name+'\']" default="'+property.name+' too long"/></p>\n'
     }       
     
     sb as String
@@ -168,18 +170,18 @@
     sb << '/>'
     }
     if (isRequired()) {
-     	sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.required" class="help-block">required.</p>'
+     	sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.required" class="help-block"><g:message code="default.required.label" args="[\''+property.name+'\']" default="Required"/></p>'
     }
-    sb << '\n\t\t<p ng-show="!'+domainTitle+'Form.'+property.name+'.$pristine && '+domainTitle+'Form.'+property.name+'.$invalid" class="help-block">invalid '+property.name+''
+    sb << '\n\t\t<p ng-show="!'+domainTitle+'Form.'+property.name+'.$pristine && '+domainTitle+'Form.'+property.name+'.$invalid" class="help-block">invalid '+property.name+' '
     if (cp."${property.name}".min != null) {
-    	sb << ' min: ' << cp."${property.name}".min << ''
+    	sb << '<g:message code="default.min.label" args="[\''+cp."${property.name}".min+'\']" default=" min: '+cp."${property.name}".min+' "/>'
     }
     if (cp."${property.name}".max != null) {
-     sb << ' max: ' << cp."${property.name}".max << ''
+     sb << '<g:message code="default.max.label" args="[\''+cp."${property.name}".max+'\']" default=" max: '+cp."${property.name}".max+' "/>'
     } 
     sb << '</p>'
     
-    sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.number" class="help-block">'+property.name+' is not valid.</p>'
+    sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.number" class="help-block"><g:message code="default.invalid.number.label" args="[\''+property.name+'\']" default="Invalid '+property.name+'"/></p>'
              
 
     sb as String
@@ -199,7 +201,7 @@
     sb << " data-ng-model='${domainTitle}.${property.name}'"
     sb << ' data-ng-controller="'<< property.type.name <<'Ctrl"'
     sb << ' data-ng-init="getAll'<< property.type.name <<'()"'
-    sb << ' ng-options="c.id for c in ' << property.type.name.toLowerCase() << 's"'
+    sb << ' ng-options="c.id for c in ' << property.type.name.toLowerCase() << 's track by c.id"'
     if (isRequired()) sb << ' required=""'
     sb << ' class="many-to-one"'
     sb << renderNoSelection(property)

@@ -130,8 +130,9 @@ target(createViewController: "Creates view") {
         domainClass ->
             if (domainClass.getShortName() == prefix) {
                 def className = domainClass.getPropertyName()
-                installTemplateView(domainClass, "list.html", "web-app/Views/${packageToPath(pkg)}${className}", "views/view", "list.html") {}
-                installTemplateView(domainClass, "edit.html", "web-app/Views/${packageToPath(pkg)}${className}", "views/view", "edit.html") {}
+                installTemplateView(domainClass, "list.gsp", "grails-app/views/${packageToPath(pkg)}${className}", "views/view", "list.html") {}
+                installTemplateView(domainClass, "edit.gsp", "grails-app/views/${packageToPath(pkg)}${className}", "views/view", "edit.html") {}
+				
             }
     }
     depends(compile)
@@ -270,6 +271,7 @@ target(updateResources: "Update the application resources") {
         writer.writeLine "        dependsOn 'angularControllers'"
         writer.writeLine "        resource url:'http://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css'"
         writer.writeLine "        resource url:'http://netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js'"
+		writer.writeLine "        resource url:'http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css'"
         writer.writeLine "    }"
         writer.writeLine ""
         writer.writeLine "    angularControllers {"
@@ -344,16 +346,65 @@ target(createAngularIndex: "Create the angular file configuration") {
                 "    '\$routeProvider',\n" +
                 "    function(\$routeProvider) {\n" +
                 "        \$routeProvider."
-        writer.writeLine "            when('/login', {templateUrl: 'Views/auth/login.html', controller: 'UserCtrl'})."
+        writer.writeLine "            when('/login', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showLogin', controller: 'UserCtrl'})."
+		writer.writeLine "            when('/signup', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showSignup', controller: 'UserCtrl'})."
         names.each {
-            writer.writeLine "            when('/" + it.propertyName + "/create', {templateUrl: 'Views/" + it.propertyName + "/edit.html', controller: '" + it.className + "Ctrl'})."
-            writer.writeLine "            when('/" + it.propertyName + "/edit', {templateUrl: 'Views/" + it.propertyName + "/edit.html', controller: '" + it.className + "Ctrl'})."
-            writer.writeLine "            when('/" + it.propertyName + "/list', {templateUrl: 'Views/" + it.propertyName + "/list.html', controller: '" + it.className + "Ctrl'})."
-            writer.writeLine "            when('/" + it.propertyName + "', {templateUrl: 'Views/" + it.propertyName + "/list.html', controller: '" + it.className + "Ctrl'})."
+            writer.writeLine "            when('/" + it.propertyName + "/create', {templateUrl: '/" + Metadata.current.'app.name' + "/" + it.propertyName + "/edit', controller: '" + it.className + "Ctrl'})."
+            writer.writeLine "            when('/" + it.propertyName + "/edit', {templateUrl: '/" + Metadata.current.'app.name' + "/" + it.propertyName + "/edit', controller: '" + it.className + "Ctrl'})."
+            writer.writeLine "            when('/" + it.propertyName + "/list', {templateUrl: '/" + Metadata.current.'app.name' + "/"  + it.propertyName + "/listing', controller: '" + it.className + "Ctrl'})."
+            writer.writeLine "            when('/" + it.propertyName + "', {templateUrl: '/" + Metadata.current.'app.name' + "/" + it.propertyName + "/listing', controller: '" + it.className + "Ctrl'})."
         }
         writer.writeLine "            otherwise({redirectTo: '/login'});"
         writer.writeLine "    }"
         writer.writeLine "]);"
+		
+		// Password Matching directive added 0.10
+		writer.writeLine shortname + ".directive('passwordMatch', [function () {"
+		writer.writeLine "\treturn {"
+		writer.writeLine "\trestrict: 'A',"
+		writer.writeLine "\tscope:true,"
+		writer.writeLine "\trequire: 'ngModel',"
+		writer.writeLine "\tlink: function (scope, elem , attrs,control) {"
+		writer.writeLine "\t\tvar checker = function () {"
+		writer.writeLine "\t\t//get the value of the first password"
+		writer.writeLine "\t\tvar e1 = scope.\$eval(attrs.ngModel);"
+		writer.writeLine "\t\t//get the value of the other password"
+		writer.writeLine "\t\tvar e2 = scope.\$eval(attrs.passwordMatch);"
+		writer.writeLine "\t\treturn e1 == e2;"
+		writer.writeLine "\t};"
+		writer.writeLine "\tscope.\$watch(checker, function (n) {"
+		writer.writeLine "\t\t//set the form control to valid if both"
+		writer.writeLine "\t\t//passwords are the same, else invalid"
+		writer.writeLine "\t\tcontrol.\$setValidity('unique', n);"
+		writer.writeLine "\t});"
+		writer.writeLine "\t}"
+		writer.writeLine "\t};"
+		writer.writeLine "}]);"
+	
+		// Unique username directive - needs work
+		/*
+		writer.writeLine shortname + ".directive('uniqueEmail', [\"ArrestedUser\", function (ArrestedUser) {"
+		writer.writeLine """	return {
+			  require:'ngModel',
+			  restrict:'A',
+			  link:function (scope, el, attrs, ctrl) {
+				ctrl.\$parsers.push(function (viewValue) {
+		  
+				  if (viewValue) {
+					ArrestedUser.query({username:viewValue}, function (users) {
+					  if (users.length === 0) {
+						ctrl.\$setValidity('uniqueEmail', true);
+					  } else {
+						ctrl.\$setValidity('uniqueEmail', false);
+					  }
+					});
+					return viewValue;
+				  }
+				});
+			  }
+			};
+		  }])
+		"""*/
     }
     depends(compile)
     println("index.js created")
@@ -427,8 +478,9 @@ target(createAngularUser: "Create the angular user controller") {
             ant.replacefilter(token: '@app.name@', value: Metadata.current.'app.name')
         }
     }
-    installTemplateEx("login.html", "web-app/Views/${packageToPath(pkg)}auth", "views/view", "login.html") {}
-    println("userController.js and login.html created")
+    installTemplateEx("login.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "login.html") {}
+	installTemplateEx("signup.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "signup.html") {}
+    println("userController.js and login.html signup.html created")
     depends(compile)
 }
 target(updateLayout: "Update the layout view") {
@@ -458,7 +510,7 @@ target(updateLayout: "Update the layout view") {
                 "    <r:layoutResources />\n" +
                 "</head>\n" +
                 "<body>\n" +
-                "<div id=\"arrestedHeader\" role=\"banner\"><h1 id=\"h1Header\">Arrested Plugin</h1></div>\n" +
+                "<div id=\"arrestedHeader\" role=\"banner\"><h1 id=\"h1Header\"><g:message code=\"default.welcome.title\" args=\"[meta(name:'app.name')]\"/></h1></div>\n" +
                 "<g:render template=\"/layouts/navbar\"/>\n" +
                 "<g:layoutBody/>\n" +
                 "<div class=\"footer\" role=\"contentinfo\"></div>\n" +
@@ -478,7 +530,7 @@ target(updateLayout: "Update the layout view") {
                 "<html>\n" +
                 "\t<head>\n" +
                 "\t\t<meta name=\"layout\" content=\"main\"/>\n" +
-                "\t\t<title>Welcome to Arrested</title>\n" +
+                "\t\t<title><g:message code=\"default.welcome.title\" args=\"[meta(name:'app.name')]\"/></title>\n" +
                 "\t\t<style type=\"text/css\" media=\"screen\">\n" +
                 "\t\t\t#status {\n" +
                 "\t\t\t\tbackground-color: #eee;\n" +
@@ -596,6 +648,31 @@ target(updateLayout: "Update the layout view") {
                 "    margin: 0 5% 0 5% !important;\n" +
                 "    max-width: 100% !important;\n" +
                 "}"
+				writer.writeLine """
+.left-inner-addon {
+	position: relative;
+}
+.left-inner-addon input {
+	padding-left: 30px;
+}
+.left-inner-addon i {
+	position: absolute;
+	padding: 10px 12px;
+	pointer-events: none;
+}
+.right-inner-addon {
+	position: relative;
+}
+.right-inner-addon input {
+	padding-right: 30px;    
+}
+.right-inner-addon i {
+	position: absolute;
+	right: 0px;
+	padding: 10px 12px;
+	pointer-events: none;
+}
+"""
     }
 
     configFile = new File("${basedir}/grails-app/views/layouts/_navbar.gsp")
@@ -617,11 +694,16 @@ target(updateLayout: "Update the layout view") {
                 "                    </li>\n" +
                 "                </g:if>\n" +
                 "            </g:each>\n" +
-                "        </ul>\n" +
-                "\n" +
-                "    </div>\n" +
-                "</div>"
-    }
+				"	 		<li class='controller'>"
+				writer.writeLine """<a data-ng-controller='UserCtrl' data-ng-click='logout()' title="\${message(code: 'security.signoff.label', default: 'Log out')}">
+								<span class="glyphicon glyphicon-log-out"></span> <g:message code="security.signoff.label"/>
+							</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+"""
+}
     depends(compile)
     println("main.gsp, index.gsp, arrested.css, _navbar.gsp updated")
 }

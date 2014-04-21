@@ -5,7 +5,15 @@ import arrested.ArrestedController
 class @controller.name@ extends ArrestedController {
 
     static allowedMethods = [show: "GET", list: "GET", save: "POST", update: "PUT", delete: "DELETE"]
-
+	def listing() { 
+		withFormat {
+			html {
+				render(view: "list")
+			}
+		}
+	}
+	def edit() {}
+	
     def show(Long id) {
         if(id){
             @class.name@ instance = @class.name@.get(id)

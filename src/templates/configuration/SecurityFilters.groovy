@@ -1,7 +1,7 @@
 @package.line@
 class SecurityFilters {
     def filters = {
-        arrested(uri: "/**") {
+        arrested(uri: "/**/#/**") {
             before = {
                 if(controllerName == 'auth' || (controllerName == 'arrestedUser' && actionName == 'save') || (!controllerName && !actionName)){
                     return true

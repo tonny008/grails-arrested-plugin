@@ -9,7 +9,7 @@ AngularJs + RESTful = Arrested
 # Installation:
 
 Add plugin Dependency in BuildConfig.groovy :
->compile ":arrested:1.10"
+>compile ":arrested:1.11"
 
 
 # Getting Started
@@ -104,7 +104,10 @@ Nothing noticed / reported at the moment -
 
 
 ### Version info:
+
 ```
+
+1.11 	Issue saving records, as String added to json.parse values of username,password,passwordConfirm within ArrestedUserController
 
 1.10: 	Signup added, logout button added, il8n support added, html pages converted to gsp pages. 	
 

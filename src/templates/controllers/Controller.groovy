@@ -49,21 +49,22 @@ class @controller.name@ extends ArrestedController {
     }
 
     def save() {
-        if (params.instance) {
-            def data = JSON.parse(params.instance)
-            <%if(!cp){%>@class.name@ instance = new @class.name@(data)<%}else{%>@class.name@ instance = new @class.name@() <%  excludedProps = Event.allEvents.toList() << 'id' << 'version'
-                allowedNames = domainClass.name << 'dateCreated' << 'lastUpdated'
-                props = domainClass.findAll { allowedNames.contains(it.name) && !excludedProps.contains(it.name) && it.type != null && !Collection.isAssignableFrom(it.type) }
-                for (p in props) {
-                    if (p.manyToOne || p.oneToOne){%>
-                        if(data.${p.name}) instance.${p.name} = ${p.type.name}.get(data.${p.name}.id as Long)
-                        <%}else if ((p.oneToMany && !p.bidirectional) || (p.manyToMany && p.isOwningSide())) {%>
-                        data.${p.name}.each{
-                            instance.${p.name}.add(${p.type.name}.get(it.id as Long))
-                        }
-                        <%}else{%>
-                        if(data.${p.name}) instance.${p.name} = data.${p.name}
-                        <%}}}%>
+		if (request.JSON.instance) {
+			def data = request.JSON.instance
+			<%if(!cp){%>@class.name@ instance = new @class.name@(data)<%}else{%>@class.name@ instance = new @class.name@() <%  excludedProps = Event.allEvents.toList() << 'id' << 'version'
+				allowedNames = domainClass.name << 'dateCreated' << 'lastUpdated'
+				props = domainClass.findAll { allowedNames.contains(it.name) && !excludedProps.contains(it.name) && it.type != null && !Collection.isAssignableFrom(it.type) }
+				for (p in props) {
+					if (p.manyToOne || p.oneToOne){%>
+						if(data.${p.name}) instance.${p.name} = ${p.type.name}.get(data.${p.name}.id as Long)
+						<%}else if ((p.oneToMany && !p.bidirectional) || (p.manyToMany && p.isOwningSide())) {%>
+						data.${p.name}.each{
+							instance.${p.name}.add(${p.type.name}.get(it.id as Long))
+						}
+						<%}else{%>
+						if(data.${p.name}) instance.${p.name} = data.${p.name}
+						<%}}}%>
+
             if(instance.save(flush: true)){
                 withFormat {
                     xml {

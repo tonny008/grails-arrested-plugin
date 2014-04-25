@@ -1,5 +1,5 @@
 class ArrestedGrailsPlugin {
-    def version = "1.12"
+    def version = "1.13"
     def grailsVersion = "2.0 > *"
     def title = "Arrested Plugin"
     def description = 'Generates RESTful controllers for domain classes and maps them in UrlMappings, generates single-page AngularJS-based views, and provides simple token-based security'
@@ -12,7 +12,7 @@ class ArrestedGrailsPlugin {
     ]
     def issueManagement = [system: 'GITHUB', url: 'https://github.com/PureSrc/grails-arrested-plugin/issues']
     def scm = [url: 'https://github.com/PureSrc/grails-arrested-plugin']
-	
+		
 	def doWithApplicationContext = { applicationContext ->
 		// Collect all *.properties files in the I18N directory and build list of "available" locales
 		def locales = []

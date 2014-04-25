@@ -9,11 +9,11 @@ class ArrestedController {
         withFormat{
             xml {
                 response.status = 404
-                render className+" "+id+" not found"
+                render className+" "+id
             }
             json {
                 response.status = 404
-                render className+" "+id+" not found"
+                render className+" "+id
             }
         }
     }
@@ -48,11 +48,11 @@ class ArrestedController {
         withFormat{
             xml {
                 response.status = 412
-                render param+" expected"
+                render param
             }
             json {
                 response.status = 412
-                render param+" expected"
+                render param
             }
         }
     }

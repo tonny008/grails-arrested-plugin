@@ -50,19 +50,19 @@ class AuthController extends ArrestedController {
                         }
                     }
                     else{
-                        renderConflict("Username and/or password incorrect")
+                        renderConflict("${message(code: 'default.usernamepassword.invalid.label', default: 'Username and/or password incorrect')}")
                     }
                 }
                 else{
-                    renderConflict("Username and/or password incorrect")
+                   renderConflict("${message(code: 'default.usernamepassword.invalid.label', default: 'Username and/or password incorrect')}")
                 }
             }
             else{
-                renderMissingParam("passwordHash")
+                renderMissingParam("${message(code: 'default.password.missing.label', default: 'PasswordHash missing')}")
             }
         }
         else{
-            renderMissingParam("username")
+            renderMissingParam("${message(code: 'default.username.missing.label', default: 'Username missing')}")
         }
     }
 
@@ -76,23 +76,23 @@ class AuthController extends ArrestedController {
                     arrestedToken.save(flush: true)
                     withFormat{
                         xml {
-                            render "Logout successfully"
+                            render "${message(code: 'default.logout.success.label', default: 'Logout successfully')}"
                         }
                         json  {
-                            render "Logout successfully"
+                            render "${message(code: 'default.logout.success.label', default: 'Logout successfully')}"
                         }
                     }
                 }
                 else{
-                    renderNotFound("", "User")
+                    renderNotFound("", "${message(code: 'default.user.notfound.label', default: 'User not found')}")
                 }
             }
             else{
-                renderNotFound("", "Token")
+                renderNotFound("", "${message(code: 'default.token.notfound.label', default: 'Token not found')}")
             }
         }
         else{
-            renderMissingParam("token")
+            renderMissingParam("${message(code: 'default.token.missing.label', default: 'Token missing')}")
         }
     }
 }

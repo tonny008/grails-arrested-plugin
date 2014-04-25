@@ -9,10 +9,13 @@ AngularJs + RESTful = Arrested
 # Installation:
 
 Add plugin Dependency in BuildConfig.groovy :
->compile ":arrested:1.12"
+>compile ":arrested:1.13"
 
 
 # Getting Started
+
+You can watch this video to help understand what you are about to do : [arrested website video](https://www.youtube.com/watch?v=popG4gucZ0Y)
+
 
 We need to set up a couple things before we get started generating your REST controllers and Angular views.  Namely we need our User and Token Entities, a Security Filter that validates a token header field, and some base Angular js files that act as a DAO to your rest services.
 
@@ -28,18 +31,25 @@ To generate a REST domainClass run:
 
 Once you have generated a domainClass ensure you add at least one element inside it before proceeding to the next step:
 
-# Controller
+
+# From 1.12 controller/view generation done in one command
+> grails arrested DomainClassName
+
+
+
+# Controller (pre 1.12) 
 
 To generate a REST controller run: 
 (This will generate a Controller and put the appropriate configurations in UrlMapping to be RESTful)
 
 > grails create-arrested-controller DomainClassName
 
-# View
+# View (pre 1.12)
 To generate views for your newly created REST controller run: 
 (This will generate a index.gsp file in your views directory ie. /views/domainclassname/index.gsp; and the javascript files to interact with your REST controller.  It's configured to use the security token and will pass a token on each request for data.)
 
 > grails create-arrested-view DomainClassName
+
 
 
 # Security
@@ -106,21 +116,24 @@ Nothing noticed / reported at the moment -
 ### Version info:
 
 ```
-1.12: 	Issues reported and found in older grails with JSON parsing, and on going sign up issues. Both now fixed. tidy up of userController.js
 
-1.11: 	Issue saving records, as String added to json.parse values of username,password,passwordConfirm within ArrestedUserController
+1.13 : 	il8n support added to controller responses, server responses are now being returned to angularJS, error messages returned now in line with fields.
 
-1.10: 	Signup added, logout button added, il8n support added, html pages converted to gsp pages. 	
+1.12 : 	Issues reported and found in older Grails with JSON parsing, and on going sign up issues. Both now fixed. tidy up of userController.js
 
-1.9: 	Basic AngularJS form validation added to master edit.html - numbers min/max validation string minSize/maxSize/pattern validations. Form update/Save disabled until form is valid
+1.11 : 	Issue saving records, as String added to json.parse values of user name,password,passwordConfirm within ArrestedUserController
+
+1.10 : 	Sign-up added, logout button added, il8n support added, HTML pages converted to GSP pages. 	
+
+1.9 : 	Basic AngularJS form validation added to master edit.html - numbers min/max validation string minSize/maxSize/pattern validations. Form update/Save disabled until form is valid
 
 1.8 :	Should have tested 1.7 properly - whilst it worked in one field instance, bugs with multiElement. Now fixed
 
 1.7 :	edit.html constraints not working - now fixed, added extra sha256Password encryption to testUnit for controller
 
-1.6 : 	Fixed issue with applications that have a dash / (hyphens). This was due to var in index.js also adopting dashes and breaking javascript, 
-		Added extra autocomplete="off" to login form, a limitation in where browser saved passwords auto complete does not work well with this technology.
-		In order to successfully log in, user must fill in username and password. The extra additions to login.html appears to have fixed on firefox. 
+1.6 : 	Fixed issue with applications that have a dash / (hyphens). This was due to var in index.js also adopting dashes and breaking JavaScript, 
+		Added extra autoComplete="off" to login form, a limitation in where browser saved passwords auto complete does not work well with this technology.
+		In order to successfully log in, user must fill in user name and password. The extra additions to login.html appears to have fixed on FireFox. 
 
 1.5 : 	changed static/Views to Views - this caused issued on 2.3.7+, removed serverHost change
 		resource to a dynamic call within service.js
@@ -129,8 +142,8 @@ Nothing noticed / reported at the moment -
 		(this may be needed in other calls, further tests needed)
 		
 1.3 : 	Changes made to ArrestedUser & Token so they default to arrested package - this now fixes unit tests 
-		for newly created controllers, added serverURL config override.
+		for newly created controllers, added serverURL configuration override.
 		
-1.2 : 	Fixed some minor issues with uppercase Scripts to scripts etc.
+1.2 : 	Fixed some minor issues with upper case Scripts to scripts etc.
 ``` 
 

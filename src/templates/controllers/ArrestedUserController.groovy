@@ -25,15 +25,15 @@ class ArrestedUserController extends ArrestedController {
                     }
                 }
                 else{
-                    renderNotFound("", "User")
+                    renderNotFound("", "${message(code: 'default.user.notfound.label', default: 'User not found')}")
                 }
             }
             else{
-                renderNotFound("", "Token")
+                renderNotFound("", "${message(code: 'default.token.notfound.label', default: 'Token not found')}")
             }
         }
         else{
-            renderMissingParam("token")
+            renderMissingParam("${message(code: 'default.token.missing.label', default: 'Token missing')}")
         }
     }
 
@@ -59,7 +59,7 @@ class ArrestedUserController extends ArrestedController {
 		if(username){
 			if((passwordHash&&passwordConfirm)&&(passwordHash.equals(passwordConfirm))){
 				if (ArrestedUser.findByUsername(username)) {
-					renderConflict("Username used")
+					renderConflict("${message(code: 'default.username.used.label', default: 'Username already in use')}")
 				} else {
 					ArrestedUser user = new ArrestedUser( username:username, passwordHash: new Sha256Hash(passwordHash).toHex() )
 					user.save(flush: true)
@@ -84,10 +84,10 @@ class ArrestedUserController extends ArrestedController {
 				}
 
 			}else{
-				renderMissingParam("passwordHash")
+				renderMissingParam("${message(code: 'default.password.missing.label', default: 'PasswordHash missing')}")
 			}
 		}else{
-			renderMissingParam("username")
+			renderMissingParam("${message(code: 'default.username.missing.label', default: 'Username missing')}")
 		}
 	}
     def update(String token) {
@@ -99,7 +99,7 @@ class ArrestedUserController extends ArrestedController {
                     ArrestedUser user = ArrestedUser.findByToken(arrestedToken.id)
                     if(user){
                         if (user.username != data.username && ArrestedUser.findByUsername(data.username as String)){
-                            renderConflict("Username used")
+                            renderConflict("${message(code: 'default.username.used.label', default: 'Username already in use')}")
                         } else {
                             user.properties = data
                             if(user.save(flush: true)){
@@ -120,19 +120,19 @@ class ArrestedUserController extends ArrestedController {
                         }
                     }
                     else{
-                        renderNotFound(data.id, "User")
+                        renderNotFound(data.id, "${message(code: 'default.user.notfound.label', default: 'User not found')}")
                     }
                 }
                 else{
-                    renderNotFound("", "Token")
+                    renderNotFound("", "${message(code: 'default.token.notfound.label', default: 'Token not found')}")
                 }
             }
             else{
-                renderMissingParam("token")
+                renderMissingParam("${message(code: 'default.token.missing.label', default: 'Token missing')}")
             }
         }
         else{
-            renderMissingParam("user")
+            renderMissingParam("${message(code: 'default.username.missing.label', default: 'Username missing')}")
         }
     }
 
@@ -147,24 +147,24 @@ class ArrestedUserController extends ArrestedController {
                     withFormat {
                         xml {
                             response.status = 200
-                            render "User deleted"
+                            render "${message(code: 'default.username.deleted.label', default: 'User deleted')}"
                         }
                         json {
                             response.status = 200
-                            render "User deleted"
+                            render "${message(code: 'default.username.deleted.label', default: 'User deleted')}"
                         }
                     }
                 }
                 else{
-                    renderNotFound("", "User")
+                    renderNotFound("", "${message(code: 'default.user.notfound.label', default: 'User not found')}")
                 }
             }
             else{
-                renderNotFound("", "Token")
+                renderNotFound("", "${message(code: 'default.token.notfound.label', default: 'Token not found')}")
             }
         }
         else{
-            renderMissingParam("token")
+            renderMissingParam("${message(code: 'default.token.missing.label', default: 'Token missing')}")
         }
     }
 }

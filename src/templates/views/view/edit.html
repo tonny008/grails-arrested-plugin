@@ -1,318 +1,353 @@
 <% import grails.persistence.Event %>
-<div data-ng-controller="${className}Ctrl">
-    <h1>${className} Edit</h1>
-    <div data-ng-show="errors.showErrors" class="red">
-        <p data-ng-show="errors.showServerError">"Can not connect to the server, try later"</p>
-    </div>
-     <form name="${domainTitle}Form"  novalidate>
+
+ 	<div data-ng-show="errors.showErrors" class="red">
+		<div ng-repeat="error in errors.errorMessages">
+			<strong></strong> <span ng-bind="error"></span>
+		</div>
+	</div>
+    
+    <div class="container" data-ng-controller="${className}Ctrl" >
+    <div class="row">
+        <div class="col-md-6 col-md-offset-2" >
+            <div class="panel panel-default">
+                <div class="panel-body">
+           
+                     <h1 class="text-center">${className} Edit</h1>
+                    
+                    
+    
+
+	
+    <form name="${domainTitle}Form"  novalidate>
+    
     <div>
-    <div>
-    <div>
-    <div>
-   
-        <p></p>
-        
+    <p></p>
         <a class="btn btn-primary btn-primary" onclick="window.location.href = '#/${domainTitle}/list'"  title="\${message(code: 'default.list.label',args:['${className}'], default: 'List')}"><span class="glyphicon glyphicon-align-justify"></span> 	<g:message code="default.list.label" args="['${className}']" default="List"/></a>
-  
         <a class="btn btn-primary btn-success" data-ng-hide="${domainTitle}.id"  ng-disabled="${domainTitle}Form.\$invalid" title="\${message(code: 'default.save.label',args:['${className}'], default: 'Save')}" ng-enabled="!${domainTitle}Form.\$invalid" data-ng-click="manualSave${className}()"><span class="glyphicon glyphicon-floppy-disk"></span> <g:message code="default.save.label" args="['${className}']" default="Save"/></a>
         <a class="btn btn-primary btn-success" data-ng-show="${domainTitle}.id"  ng-disabled="${domainTitle}Form.\$invalid" title="\${message(code: 'default.update.label',args:['${className}'], default: 'Update')}" ng-enabled="!${domainTitle}Form.\$invalid" data-ng-click="manualSave${className}()"><span class="glyphicon glyphicon-floppy-disk"></span> <g:message code="default.update.label" args="['${className}']" default="Update"/></a>
-        <a class="btn btn-primary btn-danger" data-ng-show="${domainTitle}.id"  title="\${message(code: 'default.delete.label',args:['${className}'], default: 'Delete')}" data-ng-click="confirmDelete${className}()"><span class="glyphicon glyphicon-trash"></span> <g:message code="default.update.label" args="['${className}']" default="Delete"/></a>
-        <p></p>
+        <a class="btn btn-primary btn-danger" data-ng-show="${domainTitle}.id"  title="\${message(code: 'default.delete.label',args:['${className}'], default: 'Delete')}" data-ng-click="confirmDelete${className}()"><span class="glyphicon glyphicon-trash"></span> <g:message code="default.delete.label" args="['${className}']" default="Delete"/></a>
+    <p></p>
     </div>
-    <div>
-    <div>
+    
     <div>
     <%
     private renderEditor(property){
-    if (property.type == Boolean || property.type == boolean)
-    renderBooleanEditor(domainClass, property)
-    else if (property.type && Number.isAssignableFrom(property.type) || (property.type?.isPrimitive() && property.type != boolean))
-    renderNumberEditor(domainClass, property)
-    else if (property.type == String)
-    renderStringEditor(domainClass, property)
-    else if (property.type == Date || property.type == java.sql.Date || property.type == java.sql.Time || property.type == Calendar)
-    renderDateEditor(domainClass, property)
-    else if (property.type == URL)
-    renderStringEditor(domainClass, property)
-    else if (property.type && property.isEnum())
-    renderEnumEditor(domainClass, property)
-    else if (property.type == TimeZone)
-    renderSelecttimeZoneEditor(domainClass, property)
-    else if (property.type == Locale)
-    renderStringEditor(domainClass, property)
-    else if (property.type == Currency)
-    renderStringEditor(domainClass, property)
-    else if (property.type==([] as Byte[]).class)
-    renderByteArrayEditor(domainClass, property)
-    else if (property.type==([] as byte[]).class)
-    renderByteArrayEditor(domainClass, property)
-    else if (property.manyToOne || property.oneToOne)
-    renderManyToOne(domainClass, property)
-    else if ((property.oneToMany && !property.bidirectional) || (property.manyToMany && property.isOwningSide())) {
-    def str = renderManyToMany(domainClass, property)
-    if (str != null) {
-    str
-    }
-    }
+	    if (property.type == Boolean || property.type == boolean) {
+	    	renderBooleanEditor(domainClass, property)
+	    } else if (property.type && Number.isAssignableFrom(property.type) || (property.type?.isPrimitive() && property.type != boolean)) {
+	    	renderNumberEditor(domainClass, property)
+	    } else if (property.type == String) {
+	    	renderStringEditor(domainClass, property)
+	    } else if (property.type == Date || property.type == java.sql.Date || property.type == java.sql.Time || property.type == Calendar) {
+	    	renderDateEditor(domainClass, property)
+	    } else if (property.type == URL) {
+	    	renderStringEditor(domainClass, property)
+	    } else if (property.type && property.isEnum()) {
+	    	renderEnumEditor(domainClass, property)
+	    } else if (property.type == TimeZone) {
+	    	renderSelecttimeZoneEditor(domainClass, property)
+	    } else if (property.type == Locale) {
+	    	renderStringEditor(domainClass, property)
+	    } else if (property.type == Currency) {
+	    	renderStringEditor(domainClass, property)
+	    } else if (property.type==([] as Byte[]).class) {
+	    	renderByteArrayEditor(domainClass, property)
+	    } else if (property.type==([] as byte[]).class) {
+	    	renderByteArrayEditor(domainClass, property)
+	    } else if (property.manyToOne || property.oneToOne) {
+	    	renderManyToOne(domainClass, property)
+	    } else if ((property.oneToMany && !property.bidirectional) || (property.manyToMany && property.isOwningSide())) {
+	    	def str = renderManyToMany(domainClass, property)
+	    	if (str != null) {
+	    		str
+	    	}
+	    }
     }
 
     private renderStringEditor(domainClass, property) {
-    if (!cp) {
-    return "<input name=\"${property.name}\" type='text' data-ng-model='${domainTitle}.${property.name}' />"
-    } else {
-    def sb = new StringBuilder("")
-    if ("textarea" == cp."${property.name}".widget || (cp."${property.name}".maxSize > 250 && !cp.password && !cp.inList)) {
-    sb << '<textArea name="' << property.name << '"'
-    sb << ' cols="40" rows="5"'
-    if (cp."${property.name}".minSize) sb << ' ng-minlength="' << cp."${property.name}".minSize << '"'
-    if (cp."${property.name}".maxSize) sb << ' ng-maxlength="' << cp."${property.name}".maxSize << '"'
-    sb << " data-ng-model='${domainTitle}.${property.name}'"
-    sb << '/>'
-    } else {
-    if (cp."${property.name}".password) {
-    sb << '<input type="password"'
-    } else if (cp."${property.name}".url) {
-    sb << '<input type="url"'
-    } else if (cp."${property.name}".email) {
-    sb << '<input type="email"'
-    } else {
-    sb << '<input type="text"'
-    }
-    sb << ' name="' << property.name << '"'
-    if (cp."${property.name}".minSize) sb << ' ng-minlength="' << cp."${property.name}".minSize << '"'
-    if (cp."${property.name}".maxSize) sb << ' ng-maxlength="' << cp."${property.name}".maxSize << '"'
-    if (cp."${property.name}".matches) sb << ' ng-pattern="${' << "${domainInstance}.constraints.${property.name}.matches" << '}"'
-    if (isRequired()) sb << ' required=""'
-    sb << " data-ng-model='${domainTitle}.${property.name}' "
-    sb << '/>'
-    }
-    if (isRequired()) {
-     	sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.required" class="help-block"><g:message code="default.required.label" args="[\''+property.name+'\']" default="Required"/></p>\n'
-    }
-    sb << '\n\t\t<p ng-show="!'+domainTitle+'Form.'+property.name+'.$pristine && '+domainTitle+'Form.'+property.name+'.$invalid" class="help-block"><g:message code="default.invalid.label" args="[\''+property.name+'\']" default="Invalid '+property.name+'"/> '
-    if (cp."${property.name}".minSize)  {
-    	sb << '<g:message code="default.minSize.label" args="[\''+cp."${property.name}".minSize+'\']" default=" minSize: '+cp."${property.name}".minSize+' "/>\n'
-    }
-    if (cp."${property.name}".maxSize)  {
-     sb << '<g:message code="default.maxSize.label" args="[\''+cp."${property.name}".maxSize+'\']" default=" maxSize: '+cp."${property.name}".maxSize+' "/>\n'
-    }
-    sb << '</p>'
+    	def sb = new StringBuilder("")
+    	
+    	sb << '<div  class="control-group" ng-class="{\'has-error\': '+domainTitle+'Form.'+property.name+'.$invalid && ('+domainTitle+'Form.'+property.name+'.$dirty || '+domainTitle+'Form.'+property.name+'.$pristine), \'has-success\': !'+domainTitle+'Form.'+property.name+'.$invalid && '+domainTitle+'Form.'+property.name+'.$dirty && !'+domainTitle+'Form.'+property.name+'.$pristine}" >'
+    	sb << '<div class="input-group">'
+    	if (!cp) {
+   			sb << '<input name="${property.name}" type="text" data-ng-model="${domainTitle}.${property.name}" class="form-control" />'
+    	} else {
+   
+    		if ("textarea" == cp."${property.name}".widget || (cp."${property.name}".maxSize > 250 && !cp.password && !cp.inList)) {
+    			sb << '<textArea name="' << property.name << '"'
+    			sb << ' class="form-control" cols="40" rows="5"'
+    			if (cp."${property.name}".minSize) {
+    				sb << ' ng-minlength="' << cp."${property.name}".minSize << '"'
+    			}	
+    			if (cp."${property.name}".maxSize) {
+    				sb << ' ng-maxlength="' << cp."${property.name}".maxSize << '"'
+    			}	
+    			sb << " data-ng-model='${domainTitle}.${property.name}'"
+    			sb << '/>'
+    		} else {
+    			if (cp."${property.name}".password) {
+    				sb << '<input type="password"'
+    			} else if (cp."${property.name}".url) {
+    				sb << '<input type="url"'
+    			} else if (cp."${property.name}".email) {
+    				sb << '<input type="email"'
+    			} else {
+    				sb << '<input type="text"'
+    			}
+    			sb << ' class="form-control" name="' << property.name << '"'
+    			
+    			if (cp."${property.name}".minSize) {
+    				sb << ' ng-minlength="' << cp."${property.name}".minSize << '"'
+    			}	
+    			if (cp."${property.name}".maxSize) {
+    				sb << ' ng-maxlength="' << cp."${property.name}".maxSize << '"'
+    			}	
+    			if (cp."${property.name}".matches) {
+    				sb << ' ng-pattern="${' << "${domainInstance}.constraints.${property.name}.matches" << '}"'
+    			}	
+    			if (isRequired()) {
+    				sb << ' required="required"'
+    			}	
+    			sb << " data-ng-model='${domainTitle}.${property.name}' "
+    			sb << '/>'
+    		}
+   
+    		sb << '\n\t\t<span ng-show="!'+domainTitle+'Form.'+property.name+'.$pristine && '+domainTitle+'Form.'+property.name+'.$invalid" class="help-inline"><g:message code="default.invalid.label" args="[\''+property.name+'\']" default="Invalid '+property.name+'"/> '
+   			if (cp."${property.name}".minSize)  {
+    			sb << '<g:message code="default.minSize.label" args="[\''+cp."${property.name}".minSize+'\']" default=" minSize: '+cp."${property.name}".minSize+' "/>\n'
+    		}
+    		if (cp."${property.name}".maxSize)  {
+     			sb << '<g:message code="default.maxSize.label" args="[\''+cp."${property.name}".maxSize+'\']" default=" maxSize: '+cp."${property.name}".maxSize+' "/>\n'
+    		}
+    		sb << '</span>'
     
-    if (cp."${property.name}".matches) {
-    	sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.pattern" class="help-block"><g:message code="default.pattern.label" args="[\''+property.name+'\']" default="Invalid '+property.name+'"/></p>\n'
-    }
-    if (cp."${property.name}".minSize) {
-        sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.minlength" class="help-block"><g:message code="default.short.label" args="[\''+property.name+'\']" default="'+property.name+' too short"/></p>\n'
-    }         
-    if (cp."${property.name}".maxSize) {
-        sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.maxlength" class="help-block"><g:message code="default.long.label" args="[\''+property.name+'\']" default="'+property.name+' too long"/></p>\n'
-    }       
-    
-    sb as String
-    }
+    		if (cp."${property.name}".matches) {
+    			sb << '\n\t\t<span ng-show="'+domainTitle+'Form.'+property.name+'.$error.pattern" class="help-inline"><g:message code="default.pattern.label" args="[\''+property.name+'\']" default="Invalid '+property.name+'"/></span>\n'
+    		}
+    		if (cp."${property.name}".minSize) {
+        		sb << '\n\t\t<span ng-show="'+domainTitle+'Form.'+property.name+'.$error.minlength" class="help-inline"><g:message code="default.short.label" args="[\''+property.name+'\']" default="'+property.name+' too short"/></span>\n'
+    		}         
+    		if (cp."${property.name}".maxSize) {
+        		sb << '\n\t\t<span ng-show="'+domainTitle+'Form.'+property.name+'.$error.maxlength" class="help-inline"><g:message code="default.long.label" args="[\''+property.name+'\']" default="'+property.name+' too long"/></span>\n'
+    		}       
+    	}
+    	sb << '</div></div>'
+    	sb as String
     }
 
     private renderByteArrayEditor(domainClass, property) {
-    return "<input type=\"file\" id=\"${property.name}\" data-ng-model='${domainTitle}.${property.name}'  name=\"${property.name}\" />"
+    	return "<input type=\"file\" id=\"${property.name}\" data-ng-model='${domainTitle}.${property.name}'  name=\"${property.name}\" />"
     }
 
     private renderBooleanEditor(domainClass, property) {
-    if (!cp) {
-    return "<input type=\"checkbox\"  name=\"${property.name}\" data-ng-model='${domainTitle}.${property.name}'  />"
-    } else {
-    def sb = new StringBuilder("<input type=\"checkbox\"  name=\"${property.name}\" ")
-    if (cp."${property.name}".widget) sb << "widget=\"${cp."${property.name}".widget}\" ";
-    cp.attributes.each { k, v ->
-    sb << "${k}=\"${v}\" "
-    }
-    sb << "data-ng-model='${domainTitle}.${property.name}' />"
-    return sb.toString()
-    }
+	    if (!cp) {
+	   		return "<input type=\"checkbox\"  name=\"${property.name}\" data-ng-model='${domainTitle}.${property.name}'  />"
+	    } else {
+	    	def sb = new StringBuilder("<input type=\"checkbox\"  name=\"${property.name}\" ")
+	    	if (cp."${property.name}".widget){
+	    		 sb << "widget=\"${cp."${property.name}".widget}\" ";
+	    	}	 
+	    	cp.attributes.each { k, v ->
+	    		sb << "${k}=\"${v}\" "
+	    	}
+	    	sb << "data-ng-model='${domainTitle}.${property.name}' />"
+	    	return sb.toString()
+	    }
     }
 
     private renderNumberEditor(domainClass, property) {
-    if (!cp) {
-    if (property.type == Byte) {
-    return "<select name=\"${property.name}\" from=\"\${-128..127}\" class=\"range\" data-ng-model='${domainTitle}.${property.name}' />"
-    } else {
-    return "<input type=\"number\" name=\"${property.name}\" data-ng-model='${domainTitle}.${property.name}' />"
-    }
-    } else {
-    def sb = new StringBuilder()
-    if (cp."${property.name}".range) {
-    sb << '<select name="' << property.name << '"'
-    sb << ' ng-options="${' << "${cp."${property.name}".range.from}..${cp."${property.name}".range.to}" << '}"'
-    sb << ' class="range"'
-    if (isRequired()) sb << ' required=""'
-    sb << " data-ng-model='${domainTitle}.${property.name}' "
-    sb << renderNoSelection(property)
-    sb << '/>'
-    } else if (cp."${property.name}".inList) {
-    sb << '<select name="' << property.name << '"'
-    sb << ' ng-options="${' << "${domainInstance}.constraints.${property.name}.inList" << '}"'
-    if (isRequired()) sb << ' required=""'
-    sb << " data-ng-model='${domainTitle}.${property.name}' "
-    sb << renderNoSelection(property)
-    sb << '/>'
-    } else {
+    	def sb = new StringBuilder("")
+    	sb << '<div  class="control-group" ng-class="{\'has-error\': '+domainTitle+'Form.'+property.name+'.$invalid && ('+domainTitle+'Form.'+property.name+'.$dirty || '+domainTitle+'Form.'+property.name+'.$pristine), \'has-success\': !'+domainTitle+'Form.'+property.name+'.$invalid && '+domainTitle+'Form.'+property.name+'.$dirty && !'+domainTitle+'Form.'+property.name+'.$pristine}" >'
+    	sb << '<div class="input-group">'
+    	
+	    if (!cp) {
+	    	if (property.type == Byte) {
+	   			sb << '<select name="${property.name}" from="\${-128..127}" class="form-control range" data-ng-model="${domainTitle}.${property.name}" />'
+	    	} else {
+	    		sb << '<input type="number" name="${property.name}" class="form-control" data-ng-model="${domainTitle}.${property.name}" />'
+	    	}
+	    } else {
+	    	
+	    	if (cp."${property.name}".range) {
+	    		sb << '<select class="form-control" name="' << property.name << '"'
+	    		sb << ' ng-options="${' << "${cp."${property.name}".range.from}..${cp."${property.name}".range.to}" << '}"'
+	    		sb << ' class="range"'
+	    		if (isRequired()) {
+	    			sb << ' required="required"'
+	    		}	
+	    		sb << " data-ng-model='${domainTitle}.${property.name}' "
+	    		sb << renderNoSelection(property)
+	    		sb << '/>'
+	    	} else if (cp."${property.name}".inList) {
+	    		sb << '<select name="' << property.name << '"'
+	    		sb << ' ng-options="${' << "${domainInstance}.constraints.${property.name}.inList" << '}"'
+	    		if (isRequired()) {
+	    			sb << ' required="required"'
+	    		}
+	    		sb << " data-ng-model='${domainTitle}.${property.name}' "
+	    		sb << renderNoSelection(property)
+	    		sb << '/>'
+	    	} else {
+	    
+	    		sb << '<input class="form-control"'
+	    		sb << ' name="' << property.name << '"'
+	    		if (property.type in [float, double, Float, Double, BigDecimal]) {
+	    			sb << " data-ng-model='${domainTitle}.${property.name}' "
+	    		} else {
+	    			sb << ' type="number"'
+	    			if (cp."${property.name}".min != null) sb << ' min="' << cp."${property.name}".min << '"'
+	    			if (cp."${property.name}".max != null) sb << ' max="' << cp."${property.name}".max << '"'
+	    			sb << " data-ng-model='${domainTitle}.${property.name}' "
+	    		}
+	    		if (isRequired()) {
+	    			sb << ' required="required"'
+	    		}
+	    		sb << '/>'
+    		}
     
-    sb << '<input'
-    sb << ' name="' << property.name << '"'
-    if (property.type in [float, double, Float, Double, BigDecimal]) {
-    sb << " data-ng-model='${domainTitle}.${property.name}' "
-    } else {
-    sb << ' type="number"'
-    if (cp."${property.name}".min != null) sb << ' min="' << cp."${property.name}".min << '"'
-    if (cp."${property.name}".max != null) sb << ' max="' << cp."${property.name}".max << '"'
-    sb << " data-ng-model='${domainTitle}.${property.name}' "
-    }
-    if (isRequired()) sb << ' required=""'
-    sb << '/>'
-    }
-    if (isRequired()) {
-     	sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.required" class="help-block"><g:message code="default.required.label" args="[\''+property.name+'\']" default="Required"/></p>'
-    }
-    sb << '\n\t\t<p ng-show="!'+domainTitle+'Form.'+property.name+'.$pristine && '+domainTitle+'Form.'+property.name+'.$invalid" class="help-block">invalid '+property.name+' '
-    if (cp."${property.name}".min != null) {
-    	sb << '<g:message code="default.min.label" args="[\''+cp."${property.name}".min+'\']" default=" min: '+cp."${property.name}".min+' "/>'
-    }
-    if (cp."${property.name}".max != null) {
-     sb << '<g:message code="default.max.label" args="[\''+cp."${property.name}".max+'\']" default=" max: '+cp."${property.name}".max+' "/>'
-    } 
-    sb << '</p>'
+    		sb << '\n\t\t<span ng-show="!'+domainTitle+'Form.'+property.name+'.$pristine && '+domainTitle+'Form.'+property.name+'.$invalid" class="help-inline">invalid '+property.name+' '
+    		if (cp."${property.name}".min != null) {
+    			sb << '<g:message code="default.min.label" args="[\''+cp."${property.name}".min+'\']" default=" min: '+cp."${property.name}".min+' "/>'
+    		}
+    		if (cp."${property.name}".max != null) {
+     			sb << '<g:message code="default.max.label" args="[\''+cp."${property.name}".max+'\']" default=" max: '+cp."${property.name}".max+' "/>'
+    		} 
+    		sb << '</span>'
     
-    sb << '\n\t\t<p ng-show="'+domainTitle+'Form.'+property.name+'.$error.number" class="help-block"><g:message code="default.invalid.number.label" args="[\''+property.name+'\']" default="Invalid '+property.name+'"/></p>'
-             
-
-    sb as String
-    }
+    		sb << '\n\t\t<span ng-show="'+domainTitle+'Form.'+property.name+'.$error.number" class="help-inline"><g:message code="default.invalid.number.label" args="[\''+property.name+'\']" default="Invalid '+property.name+'"/></span>'
+    	}
+    	sb << '</div></div>'
+    	sb as String
     }
 
     private renderManyToOne(domainClass,property) {
-    if (property.association) {
-    if (property.type.name.indexOf('.')>-1) {
-    	property.type.name=property.type.name.substring(property.type.name.lastIndexOf('.')+1,property.type.name.length())
-    }
-    def sb = new StringBuilder()
-    sb << '<select'
-    // id is "x" and name is "x.id" as the label will have for="x" and "." in an id will confuse CSS
-    sb << ' id="' << property.name << '"'
-    sb << ' name="' << property.name << '.id"'
-    sb << " data-ng-model='${domainTitle}.${property.name}'"
-    sb << ' data-ng-controller="'<< property.type.name <<'Ctrl"'
-    sb << ' data-ng-init="getAll'<< property.type.name <<'()"'
-    sb << ' ng-options="c.id for c in ' << property.type.name.toLowerCase() << 's track by c.id"'
-    if (isRequired()) sb << ' required=""'
-    sb << ' class="many-to-one"'
-    sb << renderNoSelection(property)
-    sb << '/>'
-    sb as String
-    }
+	    if (property.association) {
+		    if (property.type.name.indexOf('.')>-1) {
+		    	property.type.name=property.type.name.substring(property.type.name.lastIndexOf('.')+1,property.type.name.length())
+		    }
+		    def sb = new StringBuilder()
+		    sb << '<select'
+		    // id is "x" and name is "x.id" as the label will have for="x" and "." in an id will confuse CSS
+		    sb << ' id="' << property.name << '"'
+		    sb << ' name="' << property.name << '.id"'
+		    sb << " data-ng-model='${domainTitle}.${property.name}'"
+		    sb << ' data-ng-controller="'<< property.type.name <<'Ctrl"'
+		    sb << ' data-ng-init="getAll'<< property.type.name <<'()"'
+		    sb << ' ng-options="c.id for c in ' << property.type.name.toLowerCase() << 's track by c.id"'
+		    if (isRequired()) {
+		    	sb << ' required=""'
+		    }	
+		    sb << ' class="many-to-one"'
+		    sb << renderNoSelection(property)
+		    sb << '/>'
+		    sb as String
+	    }
     }
 
     private renderEnumEditor(domainClass, property) {
-    def sb = new StringBuilder("")
-    sb << '<select name="' << property.name << '"'
-    sb << ' from="${' << "${property.type.name}?.values()" << '}"'
-    sb << ' keys="${' << property.type.name << '.values()*.name()}"'
-    if (isRequired()) sb << ' required=""'
-    sb << ' value="${' << "${domainInstance}?.${property.name}?.name()" << '}" '
-    if (cp) {
-    cp.attributes.each { k, v ->
-    sb << "${k}=\"${v}\" "
-    }
-    }
-    sb << renderNoSelection(property)
-    sb << '/>'
-    sb as String
+	    def sb = new StringBuilder("")
+	    sb << '<select name="' << property.name << '"'
+	    sb << ' from="${' << "${property.type.name}?.values()" << '}"'
+	    sb << ' keys="${' << property.type.name << '.values()*.name()}"'
+	    if (isRequired()) sb << ' required=""'
+	    sb << ' value="${' << "${domainInstance}?.${property.name}?.name()" << '}" '
+	    if (cp) {
+	    	cp.attributes.each { k, v ->
+	    		sb << "${k}=\"${v}\" "
+	    	}
+	    }
+	    sb << renderNoSelection(property)
+	    sb << '/>'
+	    sb as String
     }
 
     private renderManyToMany(domainClass, property) {
-    def cls = property.referencedDomainClass?.clazz
-    if (cls == null) {
-    if (property.type instanceof Collection) {
-    cls = org.springframework.core.GenericCollectionTypeResolver.getCollectionType(property.type)
-    }
-    }
-
-    if (cls != null) {
-    def sb = new StringBuilder()
-    sb << '<select name="' << property.name << '"'
-    sb << '  ng-options=" c in ${' << cls.name << '.list()}"'
-    sb << ' multiple="multiple"'
-    sb << ' size="5"'
-    if (isRequired()) sb << ' required=""'
-    sb << " data-ng-model='${domainTitle}.${property.name}' "
-    sb << ' class="many-to-many"'
-    sb << '/>'
-    sb as String
-
-    }
-
+    	def cls = property.referencedDomainClass?.clazz
+    	if (cls == null) {
+    		if (property.type instanceof Collection) {
+    			cls = org.springframework.core.GenericCollectionTypeResolver.getCollectionType(property.type)
+    		}
+    	}
+    	if (cls != null) {
+		    def sb = new StringBuilder()
+		    sb << '<select name="' << property.name << '"'
+		    sb << '  ng-options=" c in ${' << cls.name << '.list()}"'
+		    sb << ' multiple="multiple"'
+		    sb << ' size="5"'
+		    if (isRequired()) sb << ' required=""'
+		    sb << " data-ng-model='${domainTitle}.${property.name}' "
+		    sb << ' class="many-to-many"'
+		    sb << '/>'
+		    sb as String
+    	}
     }
 
     private renderDateEditor(domainClass, property) {
-    def precision = (property.type == Date || property.type == java.sql.Date || property.type == Calendar) ? "day" : "minute";
-    if (!cp) {
-    return "<input type=\"date\" name=\"${property.name}\" precision=\"${precision}\" data-ng-model='${domainTitle}.${property.name}' />"
-    } else {
-    if (!cp."${property.name}".editable) {
-    return "\${${domainInstance}?.${property.name}?.toString()}"
-    } else {
-    def sb = new StringBuilder("<input type=\"date\" name=\"${property.name}\" ")
-    if (cp."${property.name}".format) sb << "format=\"${cp."${property.name}".format}\" "
-    if (cp."${property.name}".widget) sb << "widget=\"${cp."${property.name}".widget}\" "
-    cp.attributes.each { k, v ->
-    sb << "${k}=\"${v}\" "
-    }
-    if (!cp.attributes.precision) {
-    sb << "precision=\"${precision}\" "
-    }
-    sb << "data-ng-model='${domainTitle}.${property.name}' />"
-
-    return sb.toString()
-    }
-    }
+	    def precision = (property.type == Date || property.type == java.sql.Date || property.type == Calendar) ? "day" : "minute";
+	    if (!cp) {
+	    	return "<input type=\"date\" name=\"${property.name}\" precision=\"${precision}\" data-ng-model='${domainTitle}.${property.name}' />"
+	    } else {
+	    	if (!cp."${property.name}".editable) {
+	    		return "\${${domainInstance}?.${property.name}?.toString()}"
+	    	} else {
+	    		def sb = new StringBuilder("<input type=\"date\" name=\"${property.name}\" ")
+	    		if (cp."${property.name}".format) { 
+	    			sb << "format=\"${cp."${property.name}".format}\" "
+	    		}	
+	    		if (cp."${property.name}".widget) {
+	    			sb << "widget=\"${cp."${property.name}".widget}\" "
+	    		}	
+	    		cp.attributes.each { k, v ->
+	    			sb << "${k}=\"${v}\" "
+	    		}
+	    		if (!cp.attributes.precision) {
+	    			sb << "precision=\"${precision}\" "
+	    		}
+	    		sb << "data-ng-model='${domainTitle}.${property.name}' />"
+	    		return sb.toString()
+	    	}
+	   	}
     }
 
     private renderSelecttimeZoneEditor(domainClass,property){
-    if (!cp) {
-    return "<input type=\"time\" name=\"${property.name}\" data-ng-model='${domainTitle}.${property.name}' />"
-    } else {
-    def sb = new StringBuilder("<input type=\"time\" name=\"${property.name}\" ")
-    if (cp."${property.name}".widget) sb << "widget=\"${cp."${property.name}".widget}\" ";
-    cp.attributes.each { k, v ->
-    sb << "${k}=\"${v}\" "
-    }
-    sb << "data-ng-model='${domainTitle}.${property.name}' />"
-    return sb.toString()
-    }
+	    if (!cp) {
+	    	return "<input type=\"time\" name=\"${property.name}\" data-ng-model='${domainTitle}.${property.name}' />"
+	    } else {
+	    	def sb = new StringBuilder("<input type=\"time\" name=\"${property.name}\" ")
+	    	if (cp."${property.name}".widget) {
+	    		sb << "widget=\"${cp."${property.name}".widget}\" ";
+	    	}	
+	    	cp.attributes.each { k, v ->
+	    		sb << "${k}=\"${v}\" "
+	    	}
+	    	sb << "data-ng-model='${domainTitle}.${property.name}' />"
+	    	return sb.toString()
+	    }
     }
 
     private renderNoSelection(property) {
-    if (isOptional()) {
-    if (property.manyToOne || property.oneToOne) {
-    return " noSelection=\"['null': '']\""
-    } else if (property.type == Date || property.type == java.sql.Date || property.type == java.sql.Time || property.type == Calendar) {
-    return "default=\"none\" noSelection=\"['': '']\""
-    } else {
-    return " noSelection=\"['': '']\""
-    }
-    }
-    return ""
+	    if (isOptional()) {
+		    if (property.manyToOne || property.oneToOne) {
+		    	return " noSelection=\"['null': '']\""
+		    } else if (property.type == Date || property.type == java.sql.Date || property.type == java.sql.Time || property.type == Calendar) {
+		    	return "default=\"none\" noSelection=\"['': '']\""
+		    } else {
+		    	return " noSelection=\"['': '']\""
+		    }
+	    }
+	    return ""
     }
 
     private boolean isRequired() {
-    !isOptional()
+    	!isOptional()
     }
 
     private boolean isOptional() {
-    if (!cp) {
-    return false
-    }
-    else {
-    cp.nullable || (cp.propertyType == String && cp.blank) || cp.propertyType in [boolean, Boolean]
-    }
+    	if (!cp) {
+    		return false
+    	} else {
+    		cp.nullable || (cp.propertyType == String && cp.blank) || cp.propertyType in [boolean, Boolean]
+    	}
     }
     %>
     <%  excludedProps = Event.allEvents.toList() << 'id' << 'version'
@@ -321,34 +356,33 @@
     %>
     <div>
         <%for (p in props) {
-        if (p.embedded) {
-        def embeddedPropNames = p.component.persistentProperties*.name
-        def embeddedProps = p.component.properties.findAll { embeddedPropNames.contains(it.name) && !excludedProps.contains(it.name) }
-        Collections.sort(embeddedProps, comparator.constructors[0].newInstance([p.component] as Object[]))
-        %><fieldset class="embedded"><legend>${p.name}</legend><%
-        for (ep in p.component.properties) {
-        renderFieldForProperty(ep, p.component, "${p.name}.")
-        }
-        %></fieldset><%
-        } else {
-        renderFieldForProperty(p, domainClass)
-        }
+	        if (p.embedded) {
+	        	def embeddedPropNames = p.component.persistentProperties*.name
+	        	def embeddedProps = p.component.properties.findAll { embeddedPropNames.contains(it.name) && !excludedProps.contains(it.name) }
+	        	Collections.sort(embeddedProps, comparator.constructors[0].newInstance([p.component] as Object[]))
+	        %><fieldset class="embedded"><legend>${p.name}</legend><%
+	        for (ep in p.component.properties) {
+	        	renderFieldForProperty(ep, p.component, "${p.name}.")
+	        }
+	        %></fieldset><%
+	        } else {
+	        	renderFieldForProperty(p, domainClass)
+	        }
         }
 
-        private renderFieldForProperty(p, owningClass, prefix = "")
-        {
-        boolean hasHibernate = pluginManager?.hasGrailsPlugin('hibernate') || pluginManager?.hasGrailsPlugin('hibernate4')
-        boolean display = true
-        boolean required = false
-        if (hasHibernate) {
-        cp = owningClass.constrainedProperties[p.name]
-        display = (cp ? cp.display : true)
-        required = (cp ? !(cp.propertyType in [boolean, Boolean]) && !cp.nullable && (cp.propertyType != String || !cp.blank) : false)
-        }
-        if (display) {
+        private renderFieldForProperty(p, owningClass, prefix = "") {
+        	boolean hasHibernate = pluginManager?.hasGrailsPlugin('hibernate') || pluginManager?.hasGrailsPlugin('hibernate4')
+        	boolean display = true
+        	boolean required = false
+        	if (hasHibernate) {
+        		cp = owningClass.constrainedProperties[p.name]
+        		display = (cp ? cp.display : true)
+        		required = (cp ? !(cp.propertyType in [boolean, Boolean]) && !cp.nullable && (cp.propertyType != String || !cp.blank) : false)
+        	}
+        	if (display) {
         %>
-        <div class="fieldcontain">
-            <label for="${p.name}">
+        <div class="form-group">
+            <label class="control-label" for="${p.name}">
                 ${p.name}
             </label>
             ${renderEditor(p)}
@@ -358,10 +392,7 @@
         
     </div>
     </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
     </form>
+    </div>
 </div>
+</div></div></div>

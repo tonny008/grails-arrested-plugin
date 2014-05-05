@@ -135,16 +135,7 @@ class @controller.name@ extends ArrestedController {
             @class.name@ instance = @class.name@.get(id)
             if (instance){
                 instance.delete(flush: true)
-                withFormat {
-                    xml {
-                        response.status = 200
-						render "\${message(code: 'default.@class.name@.deleted.label', default: '@class.name@ deleted')}"
-                    }
-                    json {
-                        response.status = 200
-						render "\${message(code: 'default.@class.name@.deleted.label', default: '@class.name@ deleted')}"
-                    }
-                }
+              	renderSuccess(id, "\${message(code: 'default.@class.instance@.deleted.label', default: '@class.instance@ deleted')}")
             }
             else{
 				renderNotFound(id, "\${message(code: 'default.@class.name@.notfound.label', default: '@class.name@ not found')}")

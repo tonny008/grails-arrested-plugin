@@ -15,7 +15,7 @@
                     <form name="signUpForm1"  class="form form-signup" role="form" novalidate>
                         
  				 	<div class="form-group">
-                    <div  class="control-group" ng-class="{'has-error': signUpForm1.username.$invalid && (signUpForm1.password.$dirty || signUpForm1.password.$pristine), 'has-success': !signUpForm1.username.$invalid && signUpForm1.username.$dirty && !signUpForm1.username.$pristine}" >
+                    <div  class="control-group" ng-class="{'has-error': signUpForm1.username.$invalid && (signUpForm1.username.$dirty || signUpForm1.username.$pristine), 'has-success': !signUpForm1.username.$invalid && signUpForm1.username.$dirty && !signUpForm1.username.$pristine}" >
                     <div class="input-group">
                     	<span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>
                         <input type="text" name="username" data-ng-model="user.username" class="form-control" ng-minlength="4" ng-maxlength="40" placeholder="${message(code: 'security.username.label', default: 'Username')}" required="required" />
@@ -28,14 +28,14 @@
 
 
 	                <div class="form-group">
-	                <div  class="control-group" ng-class="{'has-error': signUpForm1.password.$invalid && signUpForm1.password.$error.pattern && (signUpForm1.password.$dirty || signUpForm1.password.$pristine),  'has-success': !signUpForm1.password.$invalid && signUpForm1.password.$dirty&&!signUpForm1.password.$pristine && !signUpForm1.password.$error.pattern  }" >
+	                <div  class="control-group" ng-class="{'has-error': (signUpForm1.password.$invalid ) && (signUpForm1.password.$dirty || signUpForm1.password.$pristine),  'has-success': !signUpForm1.password.$invalid && signUpForm1.password.$dirty&&!signUpForm1.password.$pristine  }" >
 					<div class="input-group">
                      	<span class="input-group-addon"><span class="glyphicon glyphicon-lock"></span></span>
                         <input type="text" name="preventAutoPass" id="preventAutoPass" style="display:none" />
-                        <input type="password" name="password" data-ng-model="user.passwordHash"   ng-pattern="/^.*(?=.{8,})(?=.*[a-z])(?=.*[A-Z])(?=.*[\d\W]).*$/"  ng-maxlength="10" class="form-control" ng-minlength="1" placeholder="${message(code: 'security.password.label', default: 'Password')}" autocomplete="off" required="required"/>
+                        <input type="password" name="password" data-ng-model="user.passwordHash"     ng-maxlength="10" class="form-control" ng-minlength="1" placeholder="${message(code: 'security.password.label', default: 'Password')}" autocomplete="off" required="required"/>
 						<span ng-show="!signUpForm1.password.$pristine && signUpForm1.password.$invalid" class="help-inline"><g:message code="default.invalid.label" args="['password']" default="Invalid password"/></span>
 						<span ng-show="signUpForm1.password.$error.maxlength" class="help-inline"><g:message code="default.maxlength.label" args="['password']" default="Password too long"/></span>
-						<span ng-show="signUpForm1.password.$error.pattern" class="help-inline"><g:message code="default.password.pattern.label" args="['password']" default="password must be 8 characters, at least 1 uppercase character and 1 digit or special character."/></span>
+						
 					</div>
                     </div>
 			  		</div>

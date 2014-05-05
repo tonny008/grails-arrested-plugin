@@ -6,6 +6,11 @@
 		</div>
 	</div>
     
+     <div data-ng-show="success.showSuccess" class="green">
+		<div ng-repeat="succeed in success.successMessages">
+			<strong></strong> <span ng-bind="succeed"></span>
+		</div>
+	</div>
     <div class="container" data-ng-controller="${className}Ctrl" >
     <div class="row">
         <div class="col-md-6 col-md-offset-2" >

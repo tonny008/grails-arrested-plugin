@@ -2,10 +2,17 @@
 <div data-ng-controller="${className}Ctrl" data-ng-init="getAll${className}()">
     <h1>${className} List</h1>
  	<div data-ng-show="errors.showErrors" class="red">
-	<div ng-repeat="error in errors.errorMessages">
-		<strong></strong> <span ng-bind="error"></span>
+		<div ng-repeat="error in errors.errorMessages">
+			<strong></strong> <span ng-bind="error"></span>
+		</div>
 	</div>
+	   
+     <div data-ng-show="success.showSuccess" class="green">
+		<div ng-repeat="succeed in success.successMessages">
+			<strong></strong> <span ng-bind="succeed"></span>
+		</div>
 	</div>
+	
         <div>
             <p></p>
             <a class="btn btn-primary btn-primary" data-ng-click="new${className}()"><span class="glyphicon glyphicon-plus"></span> New ${domainTitle}</a>

@@ -277,9 +277,11 @@ target(updateResources: "Update the application resources") {
         writer.writeLine "    angularControllers {"
         writer.writeLine "        dependsOn 'ngRoute'"
         writer.writeLine "        resource url:'js/userCtrl.js'"
-        names.each {
-            writer.writeLine "        resource url:'js/"+it.className+"Ctrl.js'"
-        }
+		names.each {
+			if (new File("${basedir}/web-app/js/${it.className}Ctrl.js").exists()) {
+				writer.writeLine "        resource url:'js/"+it.className+"Ctrl.js'"
+			}
+		}
         writer.writeLine "    }"
         writer.writeLine ""
         writer.writeLine "    ngRoute {"
@@ -348,6 +350,7 @@ target(createAngularIndex: "Create the angular file configuration") {
                 "        \$routeProvider."
         writer.writeLine "            when('/login', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showLogin', controller: 'UserCtrl'})."
 		writer.writeLine "            when('/signup', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showSignup', controller: 'UserCtrl'})."
+		writer.writeLine "            when('/updateinfo', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showUpdateInfo', controller: 'UserCtrl'})."
         names.each {
             writer.writeLine "            when('/" + it.propertyName + "/create', {templateUrl: '/" + Metadata.current.'app.name' + "/" + it.propertyName + "/edit', controller: '" + it.className + "Ctrl'})."
             writer.writeLine "            when('/" + it.propertyName + "/edit', {templateUrl: '/" + Metadata.current.'app.name' + "/" + it.propertyName + "/edit', controller: '" + it.className + "Ctrl'})."
@@ -480,6 +483,7 @@ target(createAngularUser: "Create the angular user controller") {
     }
     installTemplateEx("login.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "login.html") {}
 	installTemplateEx("signup.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "signup.html") {}
+	installTemplateEx("update.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "update.html") {}
     println("userController.js and login.html signup.html created")
     depends(compile)
 }
@@ -681,22 +685,40 @@ target(updateLayout: "Update the layout view") {
     }
     configFile.createNewFile()
     configFile.withWriterAppend { BufferedWriter writer ->
-        writer.writeLine "<div class=\"container row\" data-ng-controller=\"UserCtrl\" data-ng-show=\"appConfig.token!=''\">\n" +
-                "    <div class=\"col-md-12\">\n" +
-                "        <p></p>\n" +
-                "        <ul class=\"nav navbar-nav col-md-12\" style=\"min-height: 30px;\">\n" +
-                "            <g:each var=\"c\" in=\"\${grailsApplication.controllerClasses.sort { it.fullName } }\">\n" +
-                "                <g:if test=\"\${!(c.fullName.contains('DbdocController')||c.fullName.contains('ArrestedUser')||c.fullName.contains('ArrestedController')||c.fullName.contains('AuthController'))}\">\n" +
-                "                    <li class=\"controller\">\n" +
-                "                        <a onclick='window.location.href=\"#/\${c.logicalPropertyName}/list\"'>\n" +
-                "                            \${c.name}\n" +
-                "                        </a>\n" +
-                "                    </li>\n" +
-                "                </g:if>\n" +
-                "            </g:each>\n" +
-				"	 		<li class='controller'>"
-				writer.writeLine """<a data-ng-controller='UserCtrl' data-ng-click='logout()' title="\${message(code: 'security.signoff.label', default: 'Log out')}">
-								<span class="glyphicon glyphicon-log-out"></span> <g:message code="security.signoff.label"/>
+        writer.writeLine """
+			<div class="container row" data-ng-controller="UserCtrl" data-ng-show="appConfig.token!=''">
+                   <div class="col-md-12">
+                    <p></p>
+                    <ul class="nav navbar-nav col-md-12" style="min-height: 30px;">
+						<li class='controller'>
+							<a class="dropdown-toggle" role="button" data-toggle="dropdown" data-target="#" href="#" id="userBox">
+							<i class="icon-user icon-white"></i>
+							<span id="userMessage">
+								<span class="glyphicon glyphicon-user"></span>
+								<g:message code="default.user.label" default="{{user.username}}" />
+							</span>
+					 		<b class="caret"></b>
+							</a>
+							<ul class="dropdown-menu" role="menu"  id="authBox">
+							<li>
+								<a onclick='window.location.href="#/updateinfo"' title="\${message(code: 'default.userdetails.update', default: 'Update info')}">
+								<g:message code="default.userdetails.update"  default="Update info"/>	
+                                </a>
+							</li>
+							</ul>
+							</li>
+							<g:each var="c" in="\${grailsApplication.controllerClasses.sort { it.fullName } }">
+                             	<g:if test="\${!(c.fullName.contains('DbdocController')||c.fullName.contains('ArrestedUser')||c.fullName.contains('ArrestedController')||c.fullName.contains('AuthController'))}">
+                                    <li class="controller">
+                                        <a onclick='window.location.href="#/\${c.logicalPropertyName}/list"' title="\${message(code: 'default.'+c.name+'.update', default: ''+c.name+'')}">
+											<g:message code="default.\${c.name}.label"  default="\${c.name}"/>	
+                                        </a>
+                                    </li>
+                                </g:if>
+                            </g:each>
+					 		<li class='controller'>
+								<a data-ng-controller='UserCtrl' data-ng-click='logout()' title="\${message(code: 'security.signoff.label', default: 'Log out')}">
+								<span class="glyphicon glyphicon-log-out"></span> <g:message code="security.signoff.label" default="Sign Off"/>
 							</a>
 							</li>
 						</ul>

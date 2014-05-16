@@ -8,7 +8,7 @@
     
 
     <div class="container" data-ng-controller="${className}Ctrl" >
-        <div class="col-md-6 col-md-offset-2" >
+        <div class="small-12 columns" >
             <div class="panel panel-default">
                 <div class="panel-body">
                     
@@ -68,7 +68,6 @@
     private renderStringEditor(domainClass, property) {
     	def sb = new StringBuilder("")
     	
-    	sb << '<div  class="control-group" ng-class="{\'has-error\': '+domainTitle+'Form.'+property.name+'.$invalid && ('+domainTitle+'Form.'+property.name+'.$dirty || '+domainTitle+'Form.'+property.name+'.$pristine), \'has-success\': !'+domainTitle+'Form.'+property.name+'.$invalid && '+domainTitle+'Form.'+property.name+'.$dirty && !'+domainTitle+'Form.'+property.name+'.$pristine}" >'
     	sb << '<div class="input-group">'
     	if (!cp) {
    			sb << '<input name="${property.name}" type="text" data-ng-model="${domainTitle}.${property.name}" class="form-control" />'
@@ -112,24 +111,24 @@
     			sb << " data-ng-model='${domainTitle}.${property.name}' "
     			sb << '/>'
     		}
-   
-    		sb << '\n\t\t<span ng-show="!'+domainTitle+'Form.'+property.name+'.$pristine && '+domainTitle+'Form.'+property.name+'.$invalid" class="help-inline"><g:message code="default.invalid.label" args="[\''+property.name+'\']" default="Invalid '+property.name+'"/> '
+   			sb << '\n\t\t<div class="error" ng-show="'+domainTitle+'Form.'+property.name+'.$dirty && '+domainTitle+'Form.'+property.name+'.$invalid">'
+    		sb << '\n\t\t<small class="error" ng-show="!'+domainTitle+'Form.'+property.name+'.$pristine && '+domainTitle+'Form.'+property.name+'.$invalid"><g:message code="default.invalid.label" args="[\''+property.name+'\']" default="Invalid '+property.name+' "/> '
    			if (cp."${property.name}".minSize)  {
     			sb << '<g:message code="default.minSize.label" args="[\''+cp."${property.name}".minSize+'\']" default=" minSize: '+cp."${property.name}".minSize+' "/>\n'
     		}
     		if (cp."${property.name}".maxSize)  {
      			sb << '<g:message code="default.maxSize.label" args="[\''+cp."${property.name}".maxSize+'\']" default=" maxSize: '+cp."${property.name}".maxSize+' "/>\n'
     		}
-    		sb << '</span>'
+    		sb << '</small>'
     
     		if (cp."${property.name}".matches) {
-    			sb << '\n\t\t<span ng-show="'+domainTitle+'Form.'+property.name+'.$error.pattern" class="help-inline"><g:message code="default.pattern.label" args="[\''+property.name+'\']" default="Invalid '+property.name+'"/></span>\n'
+    			sb << '\n\t\t<small class="error" ng-show="'+domainTitle+'Form.'+property.name+'.$error.pattern"><g:message code="default.pattern.label" args="[\''+property.name+'\']" default=" Invalid '+property.name+'"/></small>\n'
     		}
     		if (cp."${property.name}".minSize) {
-        		sb << '\n\t\t<span ng-show="'+domainTitle+'Form.'+property.name+'.$error.minlength" class="help-inline"><g:message code="default.short.label" args="[\''+property.name+'\']" default="'+property.name+' too short"/></span>\n'
+        		sb << '\n\t\t<small class="error" ng-show="'+domainTitle+'Form.'+property.name+'.$error.minlength"><g:message code="default.short.label" args="[\''+property.name+'\']" default=" '+property.name+' too short"/></small>\n'
     		}         
     		if (cp."${property.name}".maxSize) {
-        		sb << '\n\t\t<span ng-show="'+domainTitle+'Form.'+property.name+'.$error.maxlength" class="help-inline"><g:message code="default.long.label" args="[\''+property.name+'\']" default="'+property.name+' too long"/></span>\n'
+        		sb << '\n\t\t<small class="error" ng-show="'+domainTitle+'Form.'+property.name+'.$error.maxlength"><g:message code="default.long.label" args="[\''+property.name+'\']" default=" '+property.name+' too long"/></small>\n'
     		}       
     	}
     	sb << '</div></div>'
@@ -158,8 +157,7 @@
 
     private renderNumberEditor(domainClass, property) {
     	def sb = new StringBuilder("")
-    	sb << '<div  class="control-group" ng-class="{\'has-error\': '+domainTitle+'Form.'+property.name+'.$invalid && ('+domainTitle+'Form.'+property.name+'.$dirty || '+domainTitle+'Form.'+property.name+'.$pristine), \'has-success\': !'+domainTitle+'Form.'+property.name+'.$invalid && '+domainTitle+'Form.'+property.name+'.$dirty && !'+domainTitle+'Form.'+property.name+'.$pristine}" >'
-    	sb << '<div class="input-group">'
+       	sb << '<div class="input-group">'
     	
 	    if (!cp) {
 	    	if (property.type == Byte) {
@@ -205,17 +203,18 @@
 	    		}
 	    		sb << '/>'
     		}
-    
-    		sb << '\n\t\t<span ng-show="!'+domainTitle+'Form.'+property.name+'.$pristine && '+domainTitle+'Form.'+property.name+'.$invalid" class="help-inline">invalid '+property.name+' '
+    		sb << '\n\t\t<div class="error" ng-show="'+domainTitle+'Form.'+property.name+'.$dirty && '+domainTitle+'Form.'+property.name+'.$invalid">'
+    	
+    		sb << '\n\t\t<small class="error" ng-show="!'+domainTitle+'Form.'+property.name+'.$pristine && '+domainTitle+'Form.'+property.name+'.$invalid"><g:message code="default.invalid.label" args="[\''+property.name+'\']" default="Invalid '+property.name+' "/> '
     		if (cp."${property.name}".min != null) {
     			sb << '<g:message code="default.min.label" args="[\''+cp."${property.name}".min+'\']" default=" min: '+cp."${property.name}".min+' "/>'
     		}
     		if (cp."${property.name}".max != null) {
      			sb << '<g:message code="default.max.label" args="[\''+cp."${property.name}".max+'\']" default=" max: '+cp."${property.name}".max+' "/>'
     		} 
-    		sb << '</span>'
+    		sb << '</small>'
     
-    		sb << '\n\t\t<span ng-show="'+domainTitle+'Form.'+property.name+'.$error.number" class="help-inline"><g:message code="default.invalid.number.label" args="[\''+property.name+'\']" default="Invalid '+property.name+'"/></span>'
+    		sb << '\n\t\t<small class="error" ng-show="'+domainTitle+'Form.'+property.name+'.$error.number"><g:message code="default.invalid.number.label" args="[\''+property.name+'\']" default=" Invalid '+property.name+' "/></small>'
     	}
     	sb << '</div></div>'
     	sb as String

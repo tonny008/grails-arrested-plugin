@@ -10,7 +10,8 @@
 	
         <div>
             <p></p>
-                <a class="btn btn-primary btn-primary" data-ng-click="new${className}()"><span class="glyphicon glyphicon-plus"></span><g:message code="default.new.label" args="['${domainTitle}']" default="New ${domainTitle}"/></a>
+             <input type="search" placeholder="\${message(code:'default.filter.label', default:'Filter results')}" ng-model="search"/>
+             <a class="btn btn-primary btn-primary" data-ng-click="new${className}()"><span class="glyphicon glyphicon-plus"></span><g:message code="default.new.label" args="['${domainTitle}']" default="New ${domainTitle}"/></a>
             <p></p>
         </div>
         <div>
@@ -20,7 +21,8 @@
                     allowedNames = domainClass.name << 'dateCreated' << 'lastUpdated'
                     props = domainClass.findAll { allowedNames.contains(it.name) && !excludedProps.contains(it.name) && it.type != null && !Collection.isAssignableFrom(it.type) }
                     %>
-
+					
+					
                     <table class="table table-condensed table-striped table-responsive table-hover">
                         <thead>
                         <tr>
@@ -34,7 +36,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr data-ng-repeat="instance in ${domainInstance}s">
+                        <tr data-ng-repeat="instance in (${domainInstance}s|orderBy:'id':true|filter:search)">
                             <%  for (p in props) { %>
                             <td>{{instance.${p.name}}}</td>
                             <%  } %>

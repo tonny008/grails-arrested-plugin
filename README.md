@@ -9,7 +9,7 @@ AngularJs + RESTful = Arrested
 # Installation:
 
 Add plugin Dependency in BuildConfig.groovy :
->compile ":arrested:1.15"
+>compile ":arrested:1.16"
 
 
 # Getting Started
@@ -116,6 +116,8 @@ Nothing noticed / reported at the moment -
 ### Version info:
 
 ```
+1.16 : introduction of search, new css styles, tidy up of existing navigation bar.
+
 1.15 :	ui updates, tidy up
 
 1.14 :	user added to navbar with drop down allowing updates to account. Fixed updateResources so that only available ctrl files are added to ApplicationResources.

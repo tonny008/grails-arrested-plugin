@@ -272,6 +272,8 @@ target(updateResources: "Update the application resources") {
         writer.writeLine "        resource url:'http://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css'"
         writer.writeLine "        resource url:'http://netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js'"
 		writer.writeLine "        resource url:'http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css'"
+		writer.writeLine "        resource url:'http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css'"
+		writer.writeLine "        resource url:'http://cdn.jsdelivr.net/foundation/5.1.1/css/foundation.min.css'"
         writer.writeLine "    }"
         writer.writeLine ""
         writer.writeLine "    angularControllers {"
@@ -674,6 +676,34 @@ thead th {
   color: white;
 }
 
+
+th:hover, tr:hover {
+	background: #62A9FF;
+}
+
+th.sortable a {
+	background-position: right;
+	background-repeat: no-repeat;
+	padding-right: 1.1em;
+}
+
+th.asc a {
+	background-image: url(../images/skin/sorted_asc.gif);
+}
+
+th.desc a {
+	background-image: url(../images/skin/sorted_desc.gif);
+}
+
+.odd {
+	background: #f7f7f7;
+}
+
+.even {
+	background: #ffffff;
+}
+
+
 tbody td {
   background-color: #EEEEEE;
 }
@@ -712,17 +742,6 @@ tr th:last-child {
 	padding: 10px 12px;
 	pointer-events: none;
 }
-.spinner {
-	background: url(../images/spinner.gif) 50% 50% no-repeat transparent;
-	height: 16px;
-	width: 16px;
-    padding: 0.5em;
-    position: absolute;
-    right: 0;
-	top: 0;
-	text-indent: -9999px;
-}
-
 fieldset,
 .property-list {
 	margin: 0.6em 1.25em 0 1.25em;
@@ -731,28 +750,23 @@ fieldset,
 	zoom: 1;
 	border: none;
 }
-
 .property-list .fieldcontain {
 	list-style: none;
 	overflow: hidden;
 	zoom: 1;
 }
-
 .fieldcontain {
 	margin-top: 1em;
 }
-
 .fieldcontain label,
 .fieldcontain .property-label {
 	color: #666666;
 	text-align: right;
 	width: 25%;
 }
-
 .fieldcontain .property-label {
 	float: left;
 }
-
 .fieldcontain .property-value {
 	display: block;
 	margin-left: 27%;
@@ -765,32 +779,30 @@ fieldset,
 	position: relative;
 	top: 0.1em;
 }
-th.sortable a {
-	background-position: right;
-	background-repeat: no-repeat;
-	padding-right: 1.1em;
+.define-spinner {
+	display: inline-block;
+	*zoom: 1;
+	*display: inline; 
+	width: 32px; 
+	padding: 0.35em;
 }
-
-th.asc a {
-	background-image: url(../images/skin/sorted_asc.gif);
+.selected, .selected a {
+  background: #AAA;
 }
-
-th.desc a {
-	background-image: url(../images/skin/sorted_desc.gif);
+.homeLogo {
+	display: inline-block;
+	*zoom: 1;
+	*display: inline; 
+	margin-top: 0.30em;
 }
-
-.odd {
-	background: #f7f7f7;
-}
-
-.even {
-	background: #ffffff;
-}
-
-th:hover, tr:hover {
-	background: #62A9FF;
-}
-
+.ng-pristine { 	border: 1px solid green; }
+.ng-dirty { border: 1px solid orange; }
+.ng-invalid.ng-dirty { border: 1px solid red; }
+.ng-valid.ng-dirty { border: 1px solid green; }
+input.ng-invalid-minlength.ng-dirty { border: 1px solid blue; }
+input.ng-invalid-maxlength.ng-dirty { border: 1px solid yellow; }
+input.ng-invalid { border: 1px solid red; }
+input.ng-valid { border: 1px solid green;}
 """
     }
 
@@ -811,20 +823,18 @@ th:hover, tr:hover {
 	           	<span class="icon-bar"></span>
 	           	<span class="icon-bar"></span>
 			</button>
-			
-			<a class="navbar-brand" href="\${createLink(uri: '/')}">
-				\${meta(name:'app.name')}
-				</a>
+			<div class="define-spinner">
+				<div ng-show="loading"><i class="fa fa-spinner fa-2x fa-spin fa-inverse"></i></div>
 			</div>
-
+			<a class="homeLogo" href="#/"><i class="fa fa-home fa-2x icon-color fa-inverse"></i></a>
+		</div>
 		<div class="collapse navbar-collapse navbar-ex1-collapse" role="navigation">
-
     	<ul class="nav navbar-nav">
 			<g:each var="c" in="\${grailsApplication.controllerClasses.sort { it.fullName } }">
             	<g:if test="\${!(c.fullName.contains('DbdocController')||c.fullName.contains('ArrestedUser')||c.fullName.contains('ArrestedController')||c.fullName.contains('AuthController'))}">
-                	<li>
+                	<li class="controller">
                     	<a onclick='window.location.href="#/\${c.logicalPropertyName}/list"' title="\${message(code: 'default.'+c.name+'.update', default: ''+c.name+'')}">
-							<g:message code="default.\${c.name}.label"  default="\${c.name}"/>	
+							<g:message code="default.\${c.name}.label"  default="\${c.name}"/>
                         </a>
                      </li>
                   </g:if>
@@ -842,7 +852,7 @@ th:hover, tr:hover {
 					 	<b class="caret"></b>
 				</a>
 				<ul class="dropdown-menu" role="menu">
-					<li >
+					<li ><i class="fa fa-gear icon-color"></i>
 						<a onclick='window.location.href="#/updateinfo"' title="\${message(code: 'default.userdetails.update', default: 'Update info')}">
 							<g:message code="default.userdetails.update"  default="Update info"/>	
                         </a>
@@ -854,6 +864,7 @@ th:hover, tr:hover {
 					<span class="glyphicon glyphicon-log-out"></span> <g:message code="security.signoff.label" default="Sign Off"/>
 				</a>
 			</li>
+			
 		</ul>
 		</div>
 	</div>

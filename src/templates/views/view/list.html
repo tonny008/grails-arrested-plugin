@@ -32,17 +32,13 @@
                             <%  } else { %>
                             <th data-sortable="${p.name}">${p.naturalName}</th>
                             <%  } } %>
-                            <th><g:message code="default.actions.label"  default="Actions"/></th>
                         </tr>
                         </thead>
                         <tbody>
-                        <tr data-ng-repeat="instance in (${domainInstance}s|orderBy:'id':true|filter:search)">
+                        <tr data-ng-repeat="instance in (${domainInstance}s|orderBy:'id':true|filter:search)" data-ng-click="edit${className}(instance)">
                             <%  for (p in props) { %>
                             <td>{{instance.${p.name}}}</td>
                             <%  } %>
-                            <td>
-                            <a class="btn btn-mini btn-success" data-ng-show="${domainTitle}.id"  title="\${message(code: 'default.update.label',args:['${className}'], default: 'Update')}" data-ng-click="edit${className}(instance)"><span class="glyphicon glyphicon-floppy-disk"></span><g:message code="default.update.label" args="['${className}']" default="Update"/></a>
-                            </td>
                         </tr>
                         </tbody>
                     </table>

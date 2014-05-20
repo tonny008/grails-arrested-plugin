@@ -1,5 +1,5 @@
 class ArrestedGrailsPlugin {
-    def version = "1.16"
+    def version = "1.17"
     def grailsVersion = "2.0 > *"
     def title = "Arrested Plugin"
     def description = 'Generates RESTful controllers for domain classes and maps them in UrlMappings, generates single-page AngularJS-based views, and provides simple token-based security'
@@ -45,7 +45,7 @@ class ArrestedGrailsPlugin {
 				locales << "en"
 				locales << "de"
 			}
-			log.info "| Kickstart found ${locales.size()} locales usable in the language selector (excluding the default \"locale\" messages.properties)."
+			log.info "found ${locales.size()} locales usable in the language selector (excluding the default \"locale\" messages.properties)."
 		} catch (Exception e) {
 			log.warn "WARNING: could not find the directory to the project's I18N files! The Language Switcher might not work correctly!"
 			log.warn e.getMessage()

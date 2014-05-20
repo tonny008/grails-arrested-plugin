@@ -9,7 +9,7 @@ AngularJs + RESTful = Arrested
 # Installation:
 
 Add plugin Dependency in BuildConfig.groovy :
->compile ":arrested:1.16"
+>compile ":arrested:1.17"
 
 
 # Getting Started
@@ -71,12 +71,12 @@ import arrested.ArrestedUser
 class BootStrap {
 
    def init = { servletContext ->
-	ArrestedUser user,user1
-		ArrestedToken token,token1
+	ArrestedUser user
+		ArrestedToken token
 		
 		user = new ArrestedUser(
-			username: "me@domain.com",
-			passwordHash: new Sha256Hash("password").toHex(),
+			username: "admin",
+			passwordHash: new Sha256Hash("admin").toHex(),
 			dateCreated: new Date()
 		).save()
 		
@@ -102,8 +102,8 @@ Configuration completed
 
 For a sample site please visit [testingarrested](https://github.com/vahidhedayati/testingarrested), this project consists of a basic Books,Authors data modelling where 
 Authors have many books. To log in 
->username:  me@domain.com
->password:  password
+>username:  admin
+>password:  admin
 
 Refer to Bootstrap configuration on this demo project to see how that works, once in, you can create authors then add books to those authors.
   
@@ -116,7 +116,9 @@ Nothing noticed / reported at the moment -
 ### Version info:
 
 ```
-1.16 : introduction of search, new css styles, tidy up of existing navigation bar.
+1.17 :	Controller.gsp generated based upon existing Ctrl.js files. UI tidyup - update returned to row click.
+
+1.16 : 	Introduction of search, new css styles, tidy up of existing navigation bar.
 
 1.15 :	ui updates, tidy up
 

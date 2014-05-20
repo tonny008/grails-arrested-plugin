@@ -10,6 +10,8 @@ target(createArrestedView: "This creates the GSP mapped at index (view is index.
     depends(parseArguments, createJSController)
     depends(parseArguments, createAngularIndex)
     depends(parseArguments, updateResources)
+	depends(parseArguments, createControllerGsp)
+	
 }
 
 setDefaultTarget 'createArrestedView'

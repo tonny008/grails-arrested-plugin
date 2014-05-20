@@ -15,6 +15,7 @@ target(createArrestedView: "This Controller, GSP mapped at index (view is index.
 	depends(parseArguments, createJSController)
 	depends(parseArguments, createAngularIndex)
 	depends(parseArguments, updateResources)
+	depends(parseArguments, createControllerGsp)
 	/*
 	depends(compile)
 	depends(loadApp)

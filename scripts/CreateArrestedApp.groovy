@@ -18,6 +18,7 @@ target(createArrestedApp: "Token, User, SecurityFilter, and the base JS files an
     depends(parseArguments, createAngularService)
     depends(parseArguments, createAngularIndex)
     depends(parseArguments, updateLayout)
+	
 }
 
 setDefaultTarget 'createArrestedApp'

@@ -255,7 +255,6 @@ target(updateResources: "Update the application resources") {
         writer.writeLine "        resource url:'http://netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js'"
 		writer.writeLine "        resource url:'http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css'"
 		writer.writeLine "        resource url:'http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css'"
-	//	writer.writeLine "        resource url:'http://cdn.jsdelivr.net/foundation/5.1.1/css/foundation.min.css'"
         writer.writeLine "    }"
         writer.writeLine ""
         writer.writeLine "    angularControllers {"
@@ -334,8 +333,10 @@ target(createAngularIndex: "Create the angular file configuration") {
                 "        \$routeProvider."
         writer.writeLine "            when('/login', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showLogin', controller: 'UserCtrl'})."
 		writer.writeLine "            when('/signup', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showSignup', controller: 'UserCtrl'})."
-		writer.writeLine "            when('/updateinfo', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showUpdateInfo', controller: 'UserCtrl'})."
-        names.each {
+		writer.writeLine "            when('/updatepassword', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showUpdatePassword', controller: 'UserCtrl'})."
+		writer.writeLine "            when('/updateusername', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showUpdateUsername', controller: 'UserCtrl'})."
+		writer.writeLine "            when('/confirmupdate', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showUpdated', controller: 'UserCtrl'})."
+		names.each {
 			if (new File("${basedir}/web-app/js/${it.className}Ctrl.js").exists()) {
 				writer.writeLine "            when('/" + it.propertyName + "/create', {templateUrl: '/" + Metadata.current.'app.name' + "/" + it.propertyName + "/edit', controller: '" + it.className + "Ctrl'})."
 				writer.writeLine "            when('/" + it.propertyName + "/edit', {templateUrl: '/" + Metadata.current.'app.name' + "/" + it.propertyName + "/edit', controller: '" + it.className + "Ctrl'})."
@@ -346,54 +347,48 @@ target(createAngularIndex: "Create the angular file configuration") {
         writer.writeLine "            otherwise({redirectTo: '/login'});"
         writer.writeLine "    }"
         writer.writeLine "]);"
-		
-		// Password Matching directive added 0.10
-		writer.writeLine shortname + ".directive('passwordMatch', [function () {"
-		writer.writeLine "\treturn {"
-		writer.writeLine "\trestrict: 'A',"
-		writer.writeLine "\tscope:true,"
-		writer.writeLine "\trequire: 'ngModel',"
-		writer.writeLine "\tlink: function (scope, elem , attrs,control) {"
-		writer.writeLine "\t\tvar checker = function () {"
-		writer.writeLine "\t\t//get the value of the first password"
-		writer.writeLine "\t\tvar e1 = scope.\$eval(attrs.ngModel);"
-		writer.writeLine "\t\t//get the value of the other password"
-		writer.writeLine "\t\tvar e2 = scope.\$eval(attrs.passwordMatch);"
-		writer.writeLine "\t\treturn e1 == e2;"
-		writer.writeLine "\t};"
-		writer.writeLine "\tscope.\$watch(checker, function (n) {"
-		writer.writeLine "\t\t//set the form control to valid if both"
-		writer.writeLine "\t\t//passwords are the same, else invalid"
-		writer.writeLine "\t\tcontrol.\$setValidity('unique', n);"
-		writer.writeLine "\t});"
-		writer.writeLine "\t}"
-		writer.writeLine "\t};"
-		writer.writeLine "}]);"
-	
-		// Unique username directive - needs work
-		/*
-		writer.writeLine shortname + ".directive('uniqueEmail', [\"ArrestedUser\", function (ArrestedUser) {"
-		writer.writeLine """	return {
-			  require:'ngModel',
-			  restrict:'A',
-			  link:function (scope, el, attrs, ctrl) {
-				ctrl.\$parsers.push(function (viewValue) {
-		  
-				  if (viewValue) {
-					ArrestedUser.query({username:viewValue}, function (users) {
-					  if (users.length === 0) {
-						ctrl.\$setValidity('uniqueEmail', true);
-					  } else {
-						ctrl.\$setValidity('uniqueEmail', false);
-					  }
-					});
-					return viewValue;
-				  }
+		writer.writeLine """
+// Password matching directive
+${shortname}.directive('passwordMatch', [function () {
+	return {
+	restrict: 'A',
+	scope:true,
+	require: 'ngModel',
+	link: function (scope, elem , attrs,control) {
+		var checker = function () {
+		//get the value of the first password
+		var e1 = scope.\$eval(attrs.ngModel);
+		//get the value of the other password
+		var e2 = scope.\$eval(attrs.passwordMatch);
+		return e1 == e2;
+	};
+	scope.\$watch(checker, function (n) {
+		//set the form control to valid if both
+		//passwords are the same, else invalid
+		control.\$setValidity('unique', n);
+	});
+	}
+	};
+}]);
+//uniqueUsername directive
+${shortname}.directive('uniqueUsername', ["\$http", function(\$http){
+    return{
+        require: 'ngModel',
+			link: function (scope, element, attrs, ctrl) {
+            	element.bind('blur', function (e) {
+               	 if (!ctrl || !element.val()) return;
+                	var currentValue = element.val();
+					\$http.put('auth/lookup', {username: currentValue}).success(function (res) {
+					ctrl.\$setValidity('uniquser', true);
+				}).error(function (res) {
+					ctrl.\$setValidity('uniquser', false);
 				});
-			  }
-			};
-		  }])
-		"""*/
+				});
+			}	
+    };
+}]);
+
+"""
     }
     depends(compile)
     println("index.js created")
@@ -470,6 +465,7 @@ target(createAngularUser: "Create the angular user controller") {
     installTemplateEx("login.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "login.html") {}
 	installTemplateEx("signup.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "signup.html") {}
 	installTemplateEx("update.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "update.html") {}
+	installTemplateEx("update-username.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "update-username.html") {}
     println("userController.js and login.html signup.html created")
     depends(compile)
 }
@@ -506,7 +502,6 @@ target(updateLayout: "Update the layout view") {
                 "<g:layoutBody/>\n" +
 				"</div>\n"+
                 "<div class=\"footer\" role=\"contentinfo\"></div>\n" +
-               // "<div id=\"spinner\" class=\"spinner\" style=\"display:none;\"><g:message code=\"spinner.alt\" default=\"Loading&hellip;\"/></div>\n" +
                 "<r:layoutResources />\n" +
                 "</body>\n" +
                 "</html>"
@@ -618,60 +613,46 @@ target(updateLayout: "Update the layout view") {
 	
     configFile.withWriterAppend { BufferedWriter writer ->
 		writer.writeLine """
-
 body {
     margin: 0 5% 0 5% !important;
     max-width: 100% !important;
 }
-
 table {
   border-collapse: separate;
   border-spacing: 0 5px;
 }
-
 thead th {
   background-color: #006DCC;
   color: white;
 }
-
-
 th:hover, tr:hover {
 	background: #62A9FF;
 }
-
 th.sortable a {
 	background-position: right;
 	background-repeat: no-repeat;
 	padding-right: 1.1em;
 }
-
 th.asc a {
 	background-image: url(../images/skin/sorted_asc.gif);
 }
-
 th.desc a {
 	background-image: url(../images/skin/sorted_desc.gif);
 }
-
 .odd {
 	background: #f7f7f7;
 }
-
 .even {
 	background: #ffffff;
 }
-
-
 tbody td {
   background-color: #EEEEEE;
 }
-
 tr td:first-child,
 tr th:first-child {
   border-top-left-radius: 6px;
   border-bottom-left-radius: 6px;
 }
-
 tr td:last-child,
 tr th:last-child {
   border-top-right-radius: 6px;
@@ -685,7 +666,6 @@ tr th:last-child {
     text-align: center !important;
     padding: 10px !important;
 }
-
 #h2Header {
 	display: inline-block;
 	*zoom: 1;
@@ -695,7 +675,6 @@ tr th:last-child {
 	color: #FFF;
 	padding-left: 0.50em;
 }
-
 .nav {
     min-height: 30px !important;
 }
@@ -703,7 +682,6 @@ tr th:last-child {
      clear: both;
 }
 #arrestedHeader{
-
 	padding-top: 4em;
 }
 .footer{
@@ -718,7 +696,6 @@ a:link, a:visited, a:hover {
 .controller a:link, .controller a:visited,.controller a:hover {
     color:#5bc0de !important;
 }
-
 .left-inner-addon {
 	position: relative;
 }
@@ -836,8 +813,6 @@ input.ng-valid { border: 1px solid green;}
 				<div id="h2Header"><g:message code="default.welcome.title" args="[meta(name:'app.name')]"/></div>
 			</li>
          </ul>
-
-
          <ul  class="nav navbar-nav navbar-right" >
          	<li  class="dropdown controller">
 				<a class="dropdown-toggle" role="button" data-toggle="dropdown">
@@ -849,8 +824,14 @@ input.ng-valid { border: 1px solid green;}
 				</a>
 				<ul class="dropdown-menu" role="menu">
 					<li>
-						<a class="fa fa-gear icon-color" onclick='window.location.href="#/updateinfo"' title="\${message(code: 'default.userdetails.update', default: 'Update info')}">
-							<g:message code="default.userdetails.update"  default="Update info"/>	
+						<a class="fa fa-gear icon-color" onclick='window.location.href="#/updateusername"' title="\${message(code: 'default.username.update', default: 'Update Username')}">
+							<g:message code="default.username.update"  default="Update Username"/>	
+                        </a>
+					</li>
+
+					<li>
+						<a class="fa fa-gear icon-color" onclick='window.location.href="#/updatepassword"' title="\${message(code: 'default.password.update', default: 'Update password')}">
+							<g:message code="default.password.update"  default="Update Password"/>	
                         </a>
 					</li>
 				</ul>
@@ -920,7 +901,6 @@ target(createControllerGsp: "Create the angular controller.gsp template") {
 		writer.writeLine """
 <div class="container-fluid" data-ng-controller="UserCtrl"  data-ng-show="appConfig.token!=''">
 """
-
 		names.each {
 			if (new File("${basedir}/web-app/js/${it.className}Ctrl.js").exists()) {
 				writer.writeLine """
@@ -948,6 +928,7 @@ private parsePrefix() {
     }
     return [pkg, prefix]
 }
+
 private parsePrefix1() {
 	def prefix = "Arrested"
 	def pkg = ""
@@ -958,6 +939,7 @@ private parsePrefix1() {
 	}
 	return [pkg ?: 'arrested', prefix]
 }
+
 private packageToPath(String pkg) {
     return pkg ? '/' + pkg.replace('.' as char, '/' as char) : ''
 }

@@ -23,6 +23,7 @@ function @controller.name@(DAO, $rootScope)
 
 	$rootScope.getAll@class.name@ = function () {
 		//get all
+		$rootScope.errors.errorMessages=[];
 		DAO.query({appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, controller: '@class.instance@', action: 'list'},
 		$rootScope.loading=true,
 		function (result) {
@@ -58,6 +59,7 @@ function @controller.name@(DAO, $rootScope)
 	}
 
 	$rootScope.save@class.name@ = function () {
+		$rootScope.errors.errorMessages=[];
 		DAO.save({appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, instance:$rootScope.@class.instance@, controller:'@class.instance@', action:'save'},
 		function (result) {
 			$rootScope.@class.instance@ = result;
@@ -75,6 +77,7 @@ function @controller.name@(DAO, $rootScope)
 	}
 
 	$rootScope.update@class.name@ = function () {
+		$rootScope.errors.errorMessages=[];
 		DAO.update({appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, instance:$rootScope.@class.instance@, controller:'@class.instance@', action:'update'},
 		$rootScope.loading=true,
 		function (result) {
@@ -93,6 +96,7 @@ function @controller.name@(DAO, $rootScope)
 	}
 
 	$rootScope.edit@class.name@ = function (@class.instance@){
+		$rootScope.errors.errorMessages=[];
 		DAO.get({appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, instance:$rootScope.@class.instance@, id: @class.instance@.id, controller:'@class.instance@', action:'show'},
 		$rootScope.loading=true,
 		function (result) {
@@ -110,6 +114,7 @@ function @controller.name@(DAO, $rootScope)
 	}
 
 	$rootScope.confirmDelete@class.name@ = function () {
+		$rootScope.errors.errorMessages=[];
 		DAO.delete({appName: $rootScope.appConfig.appName, token: $rootScope.appConfig.token, instance:$rootScope.@class.instance@, id: $rootScope.@class.instance@.id, controller:'@class.instance@', action:'delete'},
 		$rootScope.loading=true,
 		function (result) {

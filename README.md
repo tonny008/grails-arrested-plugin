@@ -9,7 +9,7 @@ AngularJs + RESTful = Arrested
 # Installation:
 
 Add plugin Dependency in BuildConfig.groovy :
->compile ":arrested:1.17"
+>compile ":arrested:1.18"
 
 
 # Getting Started
@@ -116,6 +116,8 @@ Nothing noticed / reported at the moment -
 ### Version info:
 
 ```
+1,18 ; 	Issues with JSON parsing fixed, hopefully for good now. directive to check existing username added - and verification added to update/signup features.
+
 1.17 :	Controller.gsp generated based upon existing Ctrl.js files. UI tidyup - update returned to row click.
 
 1.16 : 	Introduction of search, new css styles, tidy up of existing navigation bar.

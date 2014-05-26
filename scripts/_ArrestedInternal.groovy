@@ -4,34 +4,15 @@ import groovy.text.SimpleTemplateEngine
 import groovy.text.Template
 
 import org.codehaus.groovy.grails.plugins.GrailsPluginManager
-import org.codehaus.groovy.grails.plugins.PluginManagerHolder
 import org.springframework.core.io.ResourceLoader
 includeTargets << grailsScript("_GrailsBootstrap")
 includeTargets << grailsScript("_GrailsCreateArtifacts")
 includeTargets << grailsScript("_GrailsCompile")
+
 overwriteAll = false
 installTemplate = { String artefactName, String artefactPath, String templatePath ->
     installTemplateEx(artefactName, artefactPath, templatePath, artefactName, null)
 }
-okToWrite = { String dest ->
-	def file = new File(dest)
-	if (overwriteAll || !file.exists()) {
-		return true
-	}
-	
-	String propertyName = "file.overwrite.$file.name"
-	ant.input(addProperty: propertyName, message: "$dest exists, ok to overwrite?", validargs: 'y,n,a', defaultvalue: 'y')
-	
-	if (ant.antProject.properties."$propertyName" == 'n') {
-		return false
-	}
-	
-	if (ant.antProject.properties."$propertyName" == 'a') {
-		overwriteAll = true
-	}
-	true
-}
-
 installTemplateEx = { String artefactName, String artefactPath, String templatePath, String templateName, Closure c ->
     // Copy over the standard auth controller.
     def artefactFile = "${basedir}/${artefactPath}/${artefactName}"
@@ -75,12 +56,16 @@ installTemplateView = { domainClass, String artefactName, String artefactPath, S
     }
 
     renderEditorTemplate = engine.createTemplate(new File(templateFile))
-
-    def pluginM = PluginManagerHolder.pluginManager
-    def plugin = pluginM.getGrailsPlugin("hibernate")
+    //def pluginM = PluginManagerHolder.pluginManager
+    //def plugin = pluginM.getGrailsPlugin("hibernate")
+	String plugin = Holders.pluginManager.getGrailsPlugin("hibernate")
+	if (!plugin) {
+		plugin = Holders.pluginManager.getGrailsPlugin("hibernate4")
+	}
+	
     if (plugin) {
-        cp = domainClass.constrainedProperties
-    }
+	    cp = domainClass.constrainedProperties
+	}
     def binding = [
             className: domainClass.getShortName(),
             domainTitle: domainClass.getPropertyName(),
@@ -231,73 +216,23 @@ target(updateResources: "Update the application resources") {
     def (pkg, prefix) = parsePrefix()
     def domainClasses = grailsApp.domainClasses
     def names = []
+	def engine = new SimpleTemplateEngine()
     domainClasses.each {
         domainClass ->
             if (domainClass.getShortName() != "ArrestedUser" && domainClass.getShortName() != "ArrestedToken") {
                 names.add([propertyName: domainClass.getPropertyName(), className: domainClass.getShortName()])
             }
     }
-    def configFile = new File("${basedir}/grails-app/conf/ApplicationResources.groovy")
-    if (configFile.exists()) {
-        configFile.delete()
-    }
-    configFile.createNewFile()
-    configFile.withWriterAppend { BufferedWriter writer ->
-        writer.writeLine "modules = {"
-        writer.writeLine "    application {"
-        writer.writeLine "        dependsOn 'bootstrap'"
-        writer.writeLine "        resource url:'js/application.js'"
-        writer.writeLine "    }"
-        writer.writeLine ""
-        writer.writeLine "    bootstrap {"
-        writer.writeLine "        dependsOn 'angularControllers'"
-        writer.writeLine "        resource url:'http://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css'"
-        writer.writeLine "        resource url:'http://netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js'"
-		writer.writeLine "        resource url:'http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css'"
-		writer.writeLine "        resource url:'http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css'"
-        writer.writeLine "    }"
-        writer.writeLine ""
-        writer.writeLine "    angularControllers {"
-        writer.writeLine "        dependsOn 'ngRoute'"
-        writer.writeLine "        resource url:'js/userCtrl.js'"
-		names.each {
-			if (new File("${basedir}/web-app/js/${it.className}Ctrl.js").exists()) {
-				writer.writeLine "        resource url:'js/"+it.className+"Ctrl.js'"
-			}
+	StringBuilder rul=new StringBuilder()
+	names.each {
+		if (new File("${basedir}/web-app/js/${it.className}Ctrl.js").exists()) {
+			rul.append('\t\tresource url: \'js/').append(it.className).append('Ctrl.js\'\n')
 		}
-        writer.writeLine "    }"
-        writer.writeLine ""
-        writer.writeLine "    ngRoute {"
-        writer.writeLine "        dependsOn 'angularConfiguration'"
-        writer.writeLine "        resource url:'http://code.angularjs.org/snapshot/angular-route.min.js'"
-        writer.writeLine "    }"
-        writer.writeLine ""
-        writer.writeLine "    angularConfiguration {"
-        writer.writeLine "        dependsOn 'angularService'"
-        writer.writeLine "        resource url: 'js/index.js'"
-        writer.writeLine "    }"
-        writer.writeLine ""
-        writer.writeLine "    angularService {"
-        writer.writeLine "        dependsOn 'angularResource'"
-        writer.writeLine "        resource url: 'js/services.js'"
-        writer.writeLine "    }"
-        writer.writeLine ""
-        writer.writeLine "    angularResource {"
-        writer.writeLine "        dependsOn 'angular'"
-        writer.writeLine "        resource url:'http://code.angularjs.org/snapshot/angular-resource.min.js'"
-        writer.writeLine "    }"
-        writer.writeLine ""
-        writer.writeLine "    angular {"
-        writer.writeLine "        dependsOn 'jQuery'"
-        writer.writeLine "        resource url:'http://code.angularjs.org/snapshot/angular.min.js'"
-        writer.writeLine "    }"
-        writer.writeLine ""
-        writer.writeLine "    jQuery {"
-        writer.writeLine "        resource url:'http://code.jquery.com/jquery.min.js'"
-        writer.writeLine "    }"
-        writer.writeLine "}"
-    }
-    depends(compile)
+	}
+	def rulConf = [customAngularControllers: rul]
+	def ruleCont = createTemplate(engine, 'configuration/ApplicationResources.groovy', rulConf)
+	writeToFile("grails-app/conf/ApplicationResources.groovy",ruleCont.toString())
+	   depends(compile)
     println("ApplicationResources.groovy updated")
 }
 target(createAngularService: "Create the angular service") {
@@ -312,6 +247,7 @@ target(createAngularIndex: "Create the angular file configuration") {
     def (pkg, prefix) = parsePrefix()
     def domainClasses = grailsApp.domainClasses
     def names = []
+	def engine = new SimpleTemplateEngine()
     domainClasses.each {
         domainClass ->
             if (domainClass.getShortName() != "ArrestedUser" && domainClass.getShortName() != "ArrestedToken") {
@@ -327,6 +263,7 @@ target(createAngularIndex: "Create the angular file configuration") {
     configFile.withWriterAppend { BufferedWriter writer ->
         writer.writeLine "'use strict';"
         writer.writeLine "var " + shortname + " = angular.module('" + Metadata.current.'app.name' + "', ['services','ngRoute']);"
+		//writer.writeLine "var " + shortname + " = angular.module('" + Metadata.current.'app.name' + "', ['services','ngRoute']);"
         writer.writeLine shortname + ".config([\n" +
                 "    '\$routeProvider',\n" +
                 "    function(\$routeProvider) {\n" +
@@ -347,49 +284,12 @@ target(createAngularIndex: "Create the angular file configuration") {
         writer.writeLine "            otherwise({redirectTo: '/login'});"
         writer.writeLine "    }"
         writer.writeLine "]);"
-		writer.writeLine """
-// Password matching directive
-${shortname}.directive('passwordMatch', [function () {
-	return {
-	restrict: 'A',
-	scope:true,
-	require: 'ngModel',
-	link: function (scope, elem , attrs,control) {
-		var checker = function () {
-		//get the value of the first password
-		var e1 = scope.\$eval(attrs.ngModel);
-		//get the value of the other password
-		var e2 = scope.\$eval(attrs.passwordMatch);
-		return e1 == e2;
-	};
-	scope.\$watch(checker, function (n) {
-		//set the form control to valid if both
-		//passwords are the same, else invalid
-		control.\$setValidity('unique', n);
-	});
-	}
-	};
-}]);
-//uniqueUsername directive
-${shortname}.directive('uniqueUsername', ["\$http", function(\$http){
-    return{
-        require: 'ngModel',
-			link: function (scope, element, attrs, ctrl) {
-            	element.bind('blur', function (e) {
-               	 if (!ctrl || !element.val()) return;
-                	var currentValue = element.val();
-					\$http.put('auth/lookup', {username: currentValue}).success(function (res) {
-					ctrl.\$setValidity('uniquser', true);
-				}).error(function (res) {
-					ctrl.\$setValidity('uniquser', false);
-				});
-				});
-			}	
-    };
-}]);
+	 }
+	
+	 def addConf = [shortname: shortname]
+	 def direc = createTemplate(engine, 'views/controllers/arrestedDirectives.js', addConf)
+	 writeToFile("web-app/js/arrestedDirectives.js",direc.toString())
 
-"""
-    }
     depends(compile)
     println("index.js created")
 }
@@ -472,408 +372,31 @@ target(createAngularUser: "Create the angular user controller") {
 target(updateLayout: "Update the layout view") {
     depends(compile)
     def (pkg, prefix) = parsePrefix()
-    def configFile = new File("${basedir}/grails-app/views/layouts/main.gsp")
-    if (configFile.exists()) {
-        configFile.delete()
-    }
-    configFile.createNewFile()
-    configFile.withWriterAppend { BufferedWriter writer ->
-        writer.writeLine "<!DOCTYPE html>\n" +
-                "<html lang=\"en\" data-ng-app=\"${Metadata.current.'app.name'}\">\n" +
-                "<head>\n" +
-                "    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n" +
-                "    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge,chrome=1\">\n" +
-                "    <title><g:layoutTitle default=\"Arrested\"/></title>\n" +
-                "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
-                "    <link rel=\"shortcut icon\" href=\"\${resource(dir: 'images', file: 'favicon.ico')}\" type=\"image/x-icon\">\n" +
-                "    <link rel=\"apple-touch-icon\" href=\"\${resource(dir: 'images', file: 'apple-touch-icon.png')}\">\n" +
-                "    <link rel=\"apple-touch-icon\" sizes=\"114x114\" href=\"\${resource(dir: 'images', file: 'apple-touch-icon-retina.png')}\">\n" +
-               // "    <link rel=\"stylesheet\" href=\"\${resource(dir: 'css', file: 'main.css')}\" type=\"text/css\">\n" +
-                "    <link rel=\"stylesheet\" href=\"\${resource(dir: 'css', file: 'arrested.css')}\" type=\"text/css\">\n" +
-                "    <link rel=\"stylesheet\" href=\"\${resource(dir: 'css', file: 'mobile.css')}\" type=\"text/css\">\n" +
-                "    <r:require module='application'/>\n" +
-                "    <g:layoutHead/>\n" +
-                "    <r:layoutResources />\n" +
-                "</head>\n" +
-                "<body>\n" +
-                "<g:render template=\"/layouts/navbar\"/>\n" +
-				"<div id=\"Content\" class=\"container\">\n"+
-				"<g:render template=\"/layouts/controllers\"/>\n" +
-                "<g:layoutBody/>\n" +
-				"</div>\n"+
-                "<div class=\"footer\" role=\"contentinfo\"></div>\n" +
-                "<r:layoutResources />\n" +
-                "</body>\n" +
-                "</html>"
-    }
+	def engine = new SimpleTemplateEngine()
 
-    configFile = new File("${basedir}/grails-app/views/index.gsp")
-    if (configFile.exists()) {
-        configFile.delete()
-    }
-    configFile.createNewFile()
-    configFile.withWriterAppend { BufferedWriter writer ->
-        writer.writeLine "<!DOCTYPE html>\n" +
-                "<html>\n" +
-                "\t<head>\n" +
-                "\t\t<meta name=\"layout\" content=\"main\"/>\n" +
-                "\t\t<title><g:message code=\"default.welcome.title\" args=\"[meta(name:'app.name')]\"/></title>\n" +
-                "\t\t<style type=\"text/css\" media=\"screen\">\n" +
-                "\t\t\t#status {\n" +
-                "\t\t\t\tbackground-color: #eee;\n" +
-                "\t\t\t\tborder: .2em solid #fff;\n" +
-                "\t\t\t\tmargin: 2em 2em 1em;\n" +
-                "\t\t\t\tpadding: 1em;\n" +
-                "\t\t\t\twidth: 12em;\n" +
-                "\t\t\t\tfloat: left;\n" +
-                "\t\t\t\t-moz-box-shadow: 0px 0px 1.25em #ccc;\n" +
-                "\t\t\t\t-webkit-box-shadow: 0px 0px 1.25em #ccc;\n" +
-                "\t\t\t\tbox-shadow: 0px 0px 1.25em #ccc;\n" +
-                "\t\t\t\t-moz-border-radius: 0.6em;\n" +
-                "\t\t\t\t-webkit-border-radius: 0.6em;\n" +
-                "\t\t\t\tborder-radius: 0.6em;\n" +
-                "\t\t\t}\n" +
-                "\n" +
-                "\t\t\t.ie6 #status {\n" +
-                "\t\t\t\tdisplay: inline; /* float double margin fix http://www.positioniseverything.net/explorer/doubled-margin.html */\n" +
-                "\t\t\t}\n" +
-                "\n" +
-                "\t\t\t#status ul {\n" +
-                "\t\t\t\tfont-size: 0.9em;\n" +
-                "\t\t\t\tlist-style-type: none;\n" +
-                "\t\t\t\tmargin-bottom: 0.6em;\n" +
-                "\t\t\t\tpadding: 0;\n" +
-                "\t\t\t}\n" +
-                "\n" +
-                "\t\t\t#status li {\n" +
-                "\t\t\t\tline-height: 1.3;\n" +
-                "\t\t\t}\n" +
-                "\n" +
-                "\t\t\t#status h1 {\n" +
-                "\t\t\t\ttext-transform: uppercase;\n" +
-                "\t\t\t\tfont-size: 1.1em;\n" +
-                "\t\t\t\tmargin: 0 0 0.3em;\n" +
-                "\t\t\t}\n" +
-                "\n" +
-                "\t\t\t#page-body {\n" +
-                "                margin: 1% 5%;\n" +
-                "\t\t\t}\n" +
-                "\n" +
-                "\t\t\th2 {\n" +
-                "\t\t\t\tmargin-top: 1em;\n" +
-                "\t\t\t\tmargin-bottom: 0.3em;\n" +
-                "\t\t\t\tfont-size: 1em;\n" +
-                "\t\t\t}\n" +
-                "\n" +
-                "\t\t\tp {\n" +
-                "\t\t\t\tline-height: 1.5;\n" +
-                "\t\t\t\tmargin: 0.25em 0;\n" +
-                "\t\t\t}\n" +
-                "\n" +
-                "\t\t\t#controller-list ul {\n" +
-                "\t\t\t\tlist-style-position: inside;\n" +
-                "\t\t\t}\n" +
-                "\n" +
-                "\t\t\t#controller-list li {\n" +
-                "\t\t\t\tline-height: 1.3;\n" +
-                "\t\t\t\tlist-style-position: inside;\n" +
-                "\t\t\t\tmargin: 0.25em 0;\n" +
-                "\t\t\t}\n" +
-                "\n" +
-                "\t\t\t@media screen and (max-width: 480px) {\n" +
-                "\t\t\t\t#status {\n" +
-                "\t\t\t\t\tdisplay: none;\n" +
-                "\t\t\t\t}\n" +
-                "\n" +
-                "\t\t\t\t#page-body {\n" +
-                "\t\t\t\t\tmargin: 0 1em 1em;\n" +
-                "\t\t\t\t}\n" +
-                "\n" +
-                "\t\t\t\t#page-body h1 {\n" +
-                "\t\t\t\t\tmargin-top: 0;\n" +
-                "\t\t\t\t}\n" +
-                "\t\t\t}\n" +
-                "\t\t</style>\n" +
-                "\t</head>\n" +
-                "\t<body>\n" +
-                "\t\t<div class=\"row\" id=\"page-body\" role=\"main\">\n" +
-                "            <div class=\"content\" role=\"main\" data-ng-view>\n" +
-                "            </div>\n" +
-                "\t\t</div>\n" +
-                "\t</body>\n" +
-                "</html>"
-    }
-
-    configFile = new File("${basedir}/web-app/css/arrested.css")
-    if (configFile.exists()) {
-        configFile.delete()
-    }
-    configFile.createNewFile()
-
+	def shortname= Metadata.current.'app.name'.toString().replaceAll(/(\_|\-|\.)/, '')
+	def addConf = [app: shortname]
+	def maingsp = createTemplate(engine, 'views/layouts/main.gsp', addConf)
+	writeToFile("grails-app/views/layouts/main.gsp",maingsp.toString())
 	
-    configFile.withWriterAppend { BufferedWriter writer ->
-		writer.writeLine """
-body {
-    margin: 0 5% 0 5% !important;
-    max-width: 100% !important;
-}
-table {
-  border-collapse: separate;
-  border-spacing: 0 5px;
-}
-thead th {
-  background-color: #006DCC;
-  color: white;
-}
-th:hover, tr:hover {
-	background: #62A9FF;
-}
-th.sortable a {
-	background-position: right;
-	background-repeat: no-repeat;
-	padding-right: 1.1em;
-}
-th.asc a {
-	background-image: url(../images/skin/sorted_asc.gif);
-}
-th.desc a {
-	background-image: url(../images/skin/sorted_desc.gif);
-}
-.odd {
-	background: #f7f7f7;
-}
-.even {
-	background: #ffffff;
-}
-tbody td {
-  background-color: #EEEEEE;
-}
-tr td:first-child,
-tr th:first-child {
-  border-top-left-radius: 6px;
-  border-bottom-left-radius: 6px;
-}
-tr td:last-child,
-tr th:last-child {
-  border-top-right-radius: 6px;
-  border-bottom-right-radius: 6px;
-}
-#Content {
-		padding-top: 70px;
-}
-#h1Header {
-    font-size: 2.25em !important;
-    text-align: center !important;
-    padding: 10px !important;
-}
-#h2Header {
-	display: inline-block;
-	*zoom: 1;
-	*display: inline; 
-    font-size: 1.8em !important;
-    text-align: center !important;
-	color: #FFF;
-	padding-left: 0.50em;
-}
-.nav {
-    min-height: 30px !important;
-}
-.clear{
-     clear: both;
-}
-#arrestedHeader{
-	padding-top: 4em;
-}
-.footer{
-    background: #C8CCBE !important;
-}
-.red{
-    color: red;
-}
-a:link, a:visited, a:hover {
-    color: #000000 !important;
-}
-.controller a:link, .controller a:visited,.controller a:hover {
-    color:#5bc0de !important;
-}
-.left-inner-addon {
-	position: relative;
-}
-.left-inner-addon input {
-	padding-left: 30px;
-}
-.left-inner-addon i {
-	position: absolute;
-	padding: 10px 12px;
-	pointer-events: none;
-}
-.right-inner-addon {
-	position: relative;
-}
-.right-inner-addon input {
-	padding-right: 30px;    
-}
-.right-inner-addon i {
-	position: absolute;
-	right: 0px;
-	padding: 10px 12px;
-	pointer-events: none;
-}
-fieldset,
-.property-list {
-	margin: 0.6em 1.25em 0 1.25em;
-	padding: 0.3em 1.8em 1.25em;
-	position: relative;
-	zoom: 1;
-	border: none;
-}
-.property-list .fieldcontain {
-	list-style: none;
-	overflow: hidden;
-	zoom: 1;
-}
-.fieldcontain {
-	margin-top: 1em;
-}
-.fieldcontain label,
-.fieldcontain .property-label {
-	color: #666666;
-	text-align: right;
-	width: 25%;
-}
-.fieldcontain .property-label {
-	float: left;
-}
-.fieldcontain .property-value {
-	display: block;
-	margin-left: 27%;
-}
-.required-indicator {
-	color: #48802C;
-	display: inline-block;
-	font-weight: bold;
-	margin-left: 0.3em;
-	position: relative;
-	top: 0.1em;
-}
-.define-spinner {
-	display: inline-block;
-	*zoom: 1;
-	*display: inline; 
-	width: 32px; 
-	padding: 0.35em;
-}
-.selected, .selected a {
-  background: #AAA;
-}
-.homeLogo {
-	display: inline-block;
-	*zoom: 1;
-	*display: inline; 
-	margin-top: 0.30em;
-	padding-left: 0.30em;
-}
-.ng-pristine { 	border: 1px solid green; }
-.ng-dirty { border: 1px solid orange; }
-.ng-invalid.ng-dirty { border: 1px solid red; }
-.ng-valid.ng-dirty { border: 1px solid green; }
-input.ng-invalid-minlength.ng-dirty { border: 1px solid blue; }
-input.ng-invalid-maxlength.ng-dirty { border: 1px solid yellow; }
-input.ng-invalid { border: 1px solid red; }
-input.ng-valid { border: 1px solid green;}
-.navbar .container {width:auto;}
-"""
-    }
-
-    configFile = new File("${basedir}/grails-app/views/layouts/_navbar.gsp")
-    if (configFile.exists()) {
-        configFile.delete()
-    }
-    configFile.createNewFile()
-    configFile.withWriterAppend { BufferedWriter writer ->
-        writer.writeLine """
-		<nav id="Navbar" class="navbar navbar-fixed-top navbar-inverse" role="navigation" data-ng-show="appConfig.token!=''">
-		<div class="container-fluid" data-ng-controller="UserCtrl" >
+	// Added to support 2.4 apps with resources plugin
+	copy(file:"$arrestedPluginDir/src/templates/views/js/application.js",
+		tofile: "$basedir/web-app/js/application.js", overwrite: false)
 	
-	    <div class="navbar-header">
-			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-        		<span class="sr-only">Toggle navigation</span>
-        		<span class="icon-bar"></span>
-	           	<span class="icon-bar"></span>
-	           	<span class="icon-bar"></span>
-			</button>
-			<div class="define-spinner">
-				<div ng-show="loading"><i class="fa fa-spinner fa-2x fa-spin fa-inverse"></i></div>
-			</div>
-			<a class="homeLogo" href="#/"><i class="fa fa-home fa-2x icon-color fa-inverse"></i></a>
-		</div>
-		<div class="collapse navbar-collapse navbar-ex1-collapse" role="navigation">
-    	<ul class="nav navbar-nav">
-			<li class="controller">
-				<div id="h2Header"><g:message code="default.welcome.title" args="[meta(name:'app.name')]"/></div>
-			</li>
-         </ul>
-         <ul  class="nav navbar-nav navbar-right" >
-         	<li  class="dropdown controller">
-				<a class="dropdown-toggle" role="button" data-toggle="dropdown">
-					<span id="userMessage">
-						<span class="glyphicon glyphicon-user"></span>
-							<g:message code="default.user.label" default="{{user.username}}" />
-						</span>
-					 	<b class="caret"></b>
-				</a>
-				<ul class="dropdown-menu" role="menu">
-					<li>
-						<a class="fa fa-gear icon-color" onclick='window.location.href="#/updateusername"' title="\${message(code: 'default.username.update', default: 'Update Username')}">
-							<g:message code="default.username.update"  default="Update Username"/>	
-                        </a>
-					</li>
+	copy(file:"$arrestedPluginDir/src/templates/views/js/ng-table.js",
+		tofile: "$basedir/web-app/js/ng-table.js", overwrite: false)
+	copy(file:"$arrestedPluginDir/src/templates/views/css/ng-table.css",
+		tofile: "$basedir/web-app/css/ng-table.css", overwrite: false)
 
-					<li>
-						<a class="fa fa-gear icon-color" onclick='window.location.href="#/updatepassword"' title="\${message(code: 'default.password.update', default: 'Update password')}">
-							<g:message code="default.password.update"  default="Update Password"/>	
-                        </a>
-					</li>
-				</ul>
-			</li>
-			<li class="controller">
-				<a data-ng-controller='UserCtrl' data-ng-click='logout()' title="\${message(code: 'security.signoff.label', default: 'Log out')}">
-					<span class="glyphicon glyphicon-log-out"></span> <g:message code="security.signoff.label" default="Sign Off"/>
-				</a>
-			</li>
-			
-		</ul>
-		</div>
-	</div>
-</nav>
-"""
-		
-}
+	def indexgsp = createTemplate(engine, 'views/index.gsp', addConf)
+	writeToFile("grails-app/views/index.gsp",indexgsp.toString())
 	
+	def arrestedcss = createTemplate(engine, 'views/css/arrested.css', addConf)
+	writeToFile("/web-app/css/arrested.css",arrestedcss.toString())
 	
-/*	
-configFile = new File("${basedir}/grails-app/views/layouts/_controllers.gsp")
-	if (configFile.exists()) {
-		configFile.delete()
-	}
-	configFile.createNewFile()
-	configFile.withWriterAppend { BufferedWriter writer ->
-		writer.writeLine """
-<div class="container-fluid" data-ng-controller="UserCtrl"  data-ng-show="appConfig.token!=''">
-	<g:each var="c" in="\${grailsApplication.controllerClasses.sort { it.fullName } }">
-            	<g:if test="\${!(c.fullName.contains('DbdocController')||c.fullName.contains('ArrestedUser')||c.fullName.contains('ArrestedController')||c.fullName.contains('AuthController'))}">
-                	<div class="btn btn-default">
-                    	<a onclick='window.location.href="#/\${c.logicalPropertyName}/list"' title="\${message(code: 'default.'+c.name+'.update', default: ''+c.name+'')}">
-							<g:message code="default.\${c.name}.label"  default="\${c.name}"/>
-                        </a>
-                     </div>
-                  </g:if>
-              </g:each>	
-</div>
-		"""		
 
-	}
-	*/
+	def navbar = createTemplate(engine, 'views/layouts/_navbar.gsp', addConf)
+	writeToFile("grails-app/views/layouts/_navbar.gsp",navbar.toString())
     depends(compile)
    println("main.gsp, index.gsp, arrested.css, _navbar.gsp updated")
 }
@@ -884,38 +407,59 @@ target(createControllerGsp: "Create the angular controller.gsp template") {
 	def (pkg, prefix) = parsePrefix()
 	def domainClasses = grailsApp.domainClasses
 	def names = []
+	def engine = new SimpleTemplateEngine()
 	domainClasses.each {
 		domainClass ->
 			if (domainClass.getShortName() != "ArrestedUser" && domainClass.getShortName() != "ArrestedToken") {
 				names.add([propertyName: domainClass.getPropertyName(), className: domainClass.getShortName()])
 			}
 	}
-	def configFile = new File("${basedir}/grails-app/views/layouts/_controllers.gsp")
-	if (configFile.exists()) {
-		configFile.delete()
-	}
-	configFile.createNewFile()
-	def shortname= Metadata.current.'app.name'.toString().replaceAll(/(\_|\-|\.)/, '')
-	
-	configFile.withWriterAppend { BufferedWriter writer ->
-		writer.writeLine """
-<div class="container-fluid" data-ng-controller="UserCtrl"  data-ng-show="appConfig.token!=''">
-"""
-		names.each {
-			if (new File("${basedir}/web-app/js/${it.className}Ctrl.js").exists()) {
-				writer.writeLine """
-				<div class="btn btn-default">
-				<a onclick='window.location.href="#/${it.propertyName}/list"' title="\${message(code: 'default.${it.propertyName}.label', default: '${it.className}')}">
-					<g:message code="default.${it.propertyName}.label"  default="${it.className}"/>
-				</a>
-				</div>
-				"""
-			}
+	StringBuilder rul=new StringBuilder()
+	names.each {
+		if (new File("${basedir}/web-app/js/${it.className}Ctrl.js").exists()) {
+			rul.append('\t <a  ng-class="isSelected(\'').append(it.propertyName).append('\')')
+			rul.append('? \'btn btn-primary\' :\'btn btn-default\'"  ng-click="setSelectedController(\'').append(it.propertyName).append('\')" ')
+			rul.append('onclick=\'window.location.href="#/').append(it.propertyName).append('/list"\' ')
+			rul.append('title="\${message(code: \'default.').append(it.propertyName).append('.label\', default: \'').append(it.className).append('\')}">\n')
+			rul.append('\t\t<g:message code="default.').append(it.propertyName).append('}.label"  default="').append(it.className).append('"/>\n')
+			rul.append('\t</a>\n')
 		}
-		writer.writeLine "</div>"
 	}
+	def rulConf = [arrestedControllers: rul]
+	def ruleCont = createTemplate(engine, 'views/layouts/_controllers.gsp', rulConf)
+	writeToFile("grails-app/views/layouts/_controllers.gsp",ruleCont.toString())
 	depends(compile)
-    println("_controllers.js created")
+    println("_controllers.gsp created ${basedir}/grails-app/views/layouts/_controllers.gsp")
+}
+
+okToWrite = { String dest ->
+	def file = new File(dest)
+	if (overwriteAll || !file.exists()) {
+		return true
+	}
+	
+	String propertyName = "file.overwrite.$file.name"
+	ant.input(addProperty: propertyName, message: "$dest exists, ok to overwrite?", validargs: 'y,n,a', defaultvalue: 'y')
+	
+	if (ant.antProject.properties."$propertyName" == 'n') {
+		return false
+	}
+	
+	if (ant.antProject.properties."$propertyName" == 'a') {
+		overwriteAll = true
+	}
+	true
+}
+
+writeToFile= { String file, String content ->
+	if (!okToWrite(file)) {
+		return
+	}
+	new File(basedir, "$file").write(content.toString())
+}
+
+private createTemplate(SimpleTemplateEngine engine, relativePath, binding) {
+	engine.createTemplate(new FileReader("$arrestedPluginDir/src/templates/$relativePath")).make(binding)
 }
 
 private parsePrefix() {

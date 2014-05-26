@@ -16,7 +16,8 @@ grails.project.dependency.resolution = {
     }
 
     plugins {
-        runtime ":cors:1.1.4"
+        runtime ':cors:1.1.6'
+        runtime ':resources:1.2.8' 
         build ':release:2.2.1', ':rest-client-builder:1.0.3', {
             export = false
         }

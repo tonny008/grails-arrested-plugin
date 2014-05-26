@@ -9,13 +9,14 @@ AngularJs + RESTful = Arrested
 # Installation:
 
 Add plugin Dependency in BuildConfig.groovy :
->compile ":arrested:1.18"
+>compile ":arrested:1.20"
 
 
 # Getting Started
 
 You can watch this video to help understand what you are about to do : [arrested website video](https://www.youtube.com/watch?v=popG4gucZ0Y)
 
+For screen shots check out [arrested website screenshots](https://github.com/vahidhedayati/testingarrested/wiki)
 
 We need to set up a couple things before we get started generating your REST controllers and Angular views.  Namely we need our User and Token Entities, a Security Filter that validates a token header field, and some base Angular js files that act as a DAO to your rest services.
 
@@ -51,8 +52,6 @@ To generate views for your newly created REST controller run:
 > grails create-arrested-view DomainClassName
 
 
-
-# Security
 
 
 # How to Integrate
@@ -109,14 +108,16 @@ Refer to Bootstrap configuration on this demo project to see how that works, onc
   
 
 
-#### Limitations:
-Nothing noticed / reported at the moment - 
-
 
 ### Version info:
 
 ```
-1,18 ; 	Issues with JSON parsing fixed, hopefully for good now. directive to check existing username added - and verification added to update/signup features.
+1.20 : various updates to support grails 2.4.0+, at the moment still relying on resources plugin. Updates to edit.html to bring in line with 2.4 verification, further updates to internal script to support hibernate4 when calling cp.
+
+1.19 : ngTable added, pagination support. (issues with filtering). UI table changes due to module addition.
+arrestedInternal Script updated:  moved html content to files and tidied up installation script.
+
+1,18 : 	Issues with JSON parsing fixed, hopefully for good now. directive to check existing username added - and verification added to update/signup features.
 
 1.17 :	Controller.gsp generated based upon existing Ctrl.js files. UI tidyup - update returned to row click.
 

@@ -10,6 +10,10 @@ includeTargets << grailsScript("_GrailsCreateArtifacts")
 includeTargets << grailsScript("_GrailsCompile")
 
 overwriteAll = false
+
+def appVersion=Metadata.current.'app.grails.version'
+def appName=Metadata.current.'app.name'
+
 installTemplate = { String artefactName, String artefactPath, String templatePath ->
     installTemplateEx(artefactName, artefactPath, templatePath, artefactName, null)
 }
@@ -213,32 +217,40 @@ target(updateUrl: "Updating the Url Mappings") {
 target(updateResources: "Update the application resources") {
     depends(compile)
     depends(loadApp)
-    def (pkg, prefix) = parsePrefix()
-    def domainClasses = grailsApp.domainClasses
-    def names = []
-	def engine = new SimpleTemplateEngine()
-    domainClasses.each {
-        domainClass ->
-            if (domainClass.getShortName() != "ArrestedUser" && domainClass.getShortName() != "ArrestedToken") {
-                names.add([propertyName: domainClass.getPropertyName(), className: domainClass.getShortName()])
-            }
-    }
-	StringBuilder rul=new StringBuilder()
-	names.each {
-		if (new File("${basedir}/web-app/js/${it.className}Ctrl.js").exists()) {
-			rul.append('\t\tresource url: \'js/').append(it.className).append('Ctrl.js\'\n')
+	if (!appVersion.startsWith('2.4')) {
+	    def (pkg, prefix) = parsePrefix()
+	    def domainClasses = grailsApp.domainClasses
+	    def names = []
+		def engine = new SimpleTemplateEngine()
+	    domainClasses.each {
+	        domainClass ->
+	            if (domainClass.getShortName() != "ArrestedUser" && domainClass.getShortName() != "ArrestedToken") {
+	                names.add([propertyName: domainClass.getPropertyName(), className: domainClass.getShortName()])
+	            }
+	    }
+		StringBuilder rul=new StringBuilder()
+		def cpathUser=verifyGrailsVersion(appVersion, 'js', 'custom-'+appName)
+		names.each {
+			//if (new File("${basedir}/web-app/js/${it.className}Ctrl.js").exists()) {
+			if (new File("${basedir}/${cpathUser}/${it.className}Ctrl.js").exists()) {
+				rul.append('\t\tresource url: \'js/').append(it.className).append('Ctrl.js\'\n')
+			}
 		}
-	}
-	def rulConf = [customAngularControllers: rul]
-	def ruleCont = createTemplate(engine, 'configuration/ApplicationResources.groovy', rulConf)
-	writeToFile("grails-app/conf/ApplicationResources.groovy",ruleCont.toString())
-	   depends(compile)
-    println("ApplicationResources.groovy updated")
+		def rulConf = [customAngularControllers: rul]
+		def ruleCont = createTemplate(engine, 'configuration/ApplicationResources.groovy', rulConf)
+		writeToFile("grails-app/conf/ApplicationResources.groovy",ruleCont.toString())
+		   depends(compile)
+	    println("ApplicationResources.groovy updated")
+	} 
 }
+
+
 target(createAngularService: "Create the angular service") {
     depends(compile)
     def (pkg, prefix) = parsePrefix()
-    installTemplateEx("services.js", "web-app/js/${packageToPath(pkg)}", "views/controllers", "services.js") {}
+	def cpathIndex=verifyGrailsVersion(appVersion, 'js', appName)
+    //installTemplateEx("services.js", "web-app/js/${packageToPath(pkg)}", "views/controllers", "services.js") {}
+	installTemplateEx("services.js", "${cpathIndex}/${packageToPath(pkg)}", "views/controllers", "services.js") {}
     depends(compile)
 }
 target(createAngularIndex: "Create the angular file configuration") {
@@ -254,7 +266,15 @@ target(createAngularIndex: "Create the angular file configuration") {
                 names.add([propertyName: domainClass.getPropertyName(), className: domainClass.getShortName()])
             }
     }
-    def configFile = new File("${basedir}/web-app/js/index.js")
+	
+	def cpathIndex=verifyGrailsVersion(appVersion, 'js', appName)
+    //def configFile = new File("${basedir}/web-app/js/index.js")
+	localmkdir("$basedir/${cpathIndex}")
+	def myFile="${basedir}/${cpathIndex}/index.js"
+	if (!okToWrite(myFile)) {
+		return
+	}
+	def configFile = new File(myFile)
     if (configFile.exists()) {
         configFile.delete()
     }
@@ -273,8 +293,10 @@ target(createAngularIndex: "Create the angular file configuration") {
 		writer.writeLine "            when('/updatepassword', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showUpdatePassword', controller: 'UserCtrl'})."
 		writer.writeLine "            when('/updateusername', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showUpdateUsername', controller: 'UserCtrl'})."
 		writer.writeLine "            when('/confirmupdate', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showUpdated', controller: 'UserCtrl'})."
+		def cpathUser=verifyGrailsVersion(appVersion, 'js', 'custom-'+appName)
 		names.each {
-			if (new File("${basedir}/web-app/js/${it.className}Ctrl.js").exists()) {
+			if (new File("${basedir}/${cpathUser}/${it.className}Ctrl.js").exists()) {
+			//if (new File("${basedir}/web-app/js/${it.className}Ctrl.js").exists()) {
 				writer.writeLine "            when('/" + it.propertyName + "/create', {templateUrl: '/" + Metadata.current.'app.name' + "/" + it.propertyName + "/edit', controller: '" + it.className + "Ctrl'})."
 				writer.writeLine "            when('/" + it.propertyName + "/edit', {templateUrl: '/" + Metadata.current.'app.name' + "/" + it.propertyName + "/edit', controller: '" + it.className + "Ctrl'})."
 				writer.writeLine "            when('/" + it.propertyName + "/list', {templateUrl: '/" + Metadata.current.'app.name' + "/"  + it.propertyName + "/listing', controller: '" + it.className + "Ctrl'})."
@@ -287,9 +309,10 @@ target(createAngularIndex: "Create the angular file configuration") {
 	 }
 	
 	 def addConf = [shortname: shortname]
+	 def cpathDirective=verifyGrailsVersion(appVersion, 'js', appName)
 	 def direc = createTemplate(engine, 'views/controllers/arrestedDirectives.js', addConf)
-	 writeToFile("web-app/js/arrestedDirectives.js",direc.toString())
-
+	 //writeToFile("web-app/js/arrestedDirectives.js",direc.toString())
+	 writeToFile(cpathDirective+'/arrestedDirectives.js',direc.toString())
     depends(compile)
     println("index.js created")
 }
@@ -342,7 +365,9 @@ target(createJSController: "Creates a standard angular controller") {
     domainClasses.each {
         domainClass ->
             if (domainClass.getShortName() == prefix) {
-                installTemplateEx("${className}.js", "web-app/js/${packageToPath(pkg)}", "views/controllers", "Controller.js") {
+				def cpathController=verifyGrailsVersion(appVersion, 'js', 'custom-'+appName)
+				installTemplateEx("${className}.js", cpathController, "views/controllers", "Controller.js") {
+                //installTemplateEx("${className}.js", "web-app/js/${packageToPath(pkg)}", "views/controllers", "Controller.js") {
                     ant.replace(file: artefactFile) {
                         ant.replacefilter(token: '@controller.name@', value: className)
                         ant.replacefilter(token: '@class.name@', value: prefix)
@@ -357,9 +382,10 @@ target(createJSController: "Creates a standard angular controller") {
 target(createAngularUser: "Create the angular user controller") {
     depends(compile)
     def (pkg, prefix) = parsePrefix()
-    installTemplateEx("userCtrl.js", "web-app/js/", "views/controllers", "userController.js") {
+	def cpathUser=verifyGrailsVersion(appVersion, 'js', 'custom-'+appName)
+    installTemplateEx("userCtrl.js", cpathUser, "views/controllers", "userController.js") {
         ant.replace(file: artefactFile) {
-            ant.replacefilter(token: '@app.name@', value: Metadata.current.'app.name')
+            ant.replacefilter(token: '@app.name@', value: appName)
         }
     }
     installTemplateEx("login.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "login.html") {}
@@ -376,25 +402,82 @@ target(updateLayout: "Update the layout view") {
 
 	def shortname= Metadata.current.'app.name'.toString().replaceAll(/(\_|\-|\.)/, '')
 	def addConf = [app: shortname]
-	def maingsp = createTemplate(engine, 'views/layouts/main.gsp', addConf)
-	writeToFile("grails-app/views/layouts/main.gsp",maingsp.toString())
 	
-	// Added to support 2.4 apps with resources plugin
-	copy(file:"$arrestedPluginDir/src/templates/views/js/application.js",
+	if (appVersion.startsWith('2.4')) {
+		
+	
+		
+		File dir = new File(arrestedPluginDir, "src/templates/assets/javascripts")
+		dir.eachFileRecurse{
+			f -> if (f.isDirectory()) {
+				if (!okToWrite("${basedir}/grails-app/assets/javascripts/$f.name")) {
+					return
+				}
+				println "Creating Assets javascripts folder: $f.name"
+				dir = new File(arrestedPluginDir, "src/templates/assets/javascripts/$f.name")
+				copy(todir: new File(basedir, 'grails-app/assets/javascripts/'+f.name)) {
+					fileset dir: dir
+				}
+			}
+		}
+		
+		
+		dir = new File(arrestedPluginDir, "src/templates/assets/stylesheets")
+		dir.eachFileRecurse{
+			f -> if (f.isDirectory()) {
+				if (!okToWrite("${basedir}/grails-app/assets/stylesheets/$f.name")) {
+					return
+				}
+				println "Creating Assets stylesheets  folder: $f.name"
+				dir = new File(arrestedPluginDir, "src/templates/assets/stylesheets/$f.name")
+				copy(todir: new File(basedir, 'grails-app/assets/stylesheets/'+f.name)) {
+					fileset dir: dir
+				}
+			}
+		}
+		
+		dir = new File(arrestedPluginDir, "src/templates/assets/stylesheets")
+		copy(todir: new File(basedir, 'grails-app/assets/stylesheets')) {
+			fileset dir: dir
+		}
+		
+		//println "---------${engine}assets/views/layouts/main.gsp"
+		def maingsp = createTemplate(engine, 'assets/views/layouts/main.gsp', addConf)
+		writeToFile("grails-app/views/layouts/main.gsp",maingsp.toString())
+		
+		
+		def indexgsp = createTemplate(engine, 'assets/views/index.gsp', addConf)
+		writeToFile("grails-app/views/index.gsp",indexgsp.toString())
+		
+		// finalise application.js replace application names after recursive copy
+		def appjs = createTemplate(engine, 'assets/javascripts/application.js', addConf)
+		writeToFile("grails-app/assets/javascripts/application.js",appjs.toString())
+		
+		
+	}else{
+	
+		def maingsp = createTemplate(engine, 'views/layouts/main.gsp', addConf)
+		writeToFile("grails-app/views/layouts/main.gsp",maingsp.toString())
+	
+		copy(file:"$arrestedPluginDir/src/templates/views/js/application.js",
 		tofile: "$basedir/web-app/js/application.js", overwrite: false)
 	
-	copy(file:"$arrestedPluginDir/src/templates/views/js/ng-table.js",
+		copy(file:"$arrestedPluginDir/src/templates/views/js/ng-table.js",
 		tofile: "$basedir/web-app/js/ng-table.js", overwrite: false)
-	copy(file:"$arrestedPluginDir/src/templates/views/css/ng-table.css",
+	
+		copy(file:"$arrestedPluginDir/src/templates/views/css/ng-table.css",
 		tofile: "$basedir/web-app/css/ng-table.css", overwrite: false)
 
-	def indexgsp = createTemplate(engine, 'views/index.gsp', addConf)
-	writeToFile("grails-app/views/index.gsp",indexgsp.toString())
+		def indexgsp = createTemplate(engine, 'views/index.gsp', addConf)
+		writeToFile("grails-app/views/index.gsp",indexgsp.toString())
 	
-	def arrestedcss = createTemplate(engine, 'views/css/arrested.css', addConf)
-	writeToFile("/web-app/css/arrested.css",arrestedcss.toString())
-	
+		def arrestedcss = createTemplate(engine, 'views/css/arrested.css', addConf)
+		writeToFile("/web-app/css/arrested.css",arrestedcss.toString())
+	}
 
+	
+	
+	
 	def navbar = createTemplate(engine, 'views/layouts/_navbar.gsp', addConf)
 	writeToFile("grails-app/views/layouts/_navbar.gsp",navbar.toString())
     depends(compile)
@@ -407,6 +490,7 @@ target(createControllerGsp: "Create the angular controller.gsp template") {
 	def (pkg, prefix) = parsePrefix()
 	def domainClasses = grailsApp.domainClasses
 	def names = []
+	
 	def engine = new SimpleTemplateEngine()
 	domainClasses.each {
 		domainClass ->
@@ -415,8 +499,11 @@ target(createControllerGsp: "Create the angular controller.gsp template") {
 			}
 	}
 	StringBuilder rul=new StringBuilder()
+	def cpathUser=verifyGrailsVersion(appVersion, 'js', 'custom-'+appName)
 	names.each {
-		if (new File("${basedir}/web-app/js/${it.className}Ctrl.js").exists()) {
+		
+		//if (new File("${basedir}/web-app/js/${it.className}Ctrl.js").exists()) {
+		if (new File("${basedir}/${cpathUser}/${it.className}Ctrl.js").exists()) {
 			rul.append('\t <a  ng-class="isSelected(\'').append(it.propertyName).append('\')')
 			rul.append('? \'btn btn-primary\' :\'btn btn-default\'"  ng-click="setSelectedController(\'').append(it.propertyName).append('\')" ')
 			rul.append('onclick=\'window.location.href="#/').append(it.propertyName).append('/list"\' ')
@@ -451,6 +538,13 @@ okToWrite = { String dest ->
 	true
 }
 
+localmkdir = { String dir ->
+	if (!okToWrite(dir)) {
+	return
+	}
+	def folders = new File(dir)
+	folders.mkdirs()
+}
 writeToFile= { String file, String content ->
 	if (!okToWrite(file)) {
 		return
@@ -458,6 +552,16 @@ writeToFile= { String file, String content ->
 	new File(basedir, "$file").write(content.toString())
 }
 
+private verifyGrailsVersion(String appVersion, String folder,String addon) { 
+	if (appVersion.startsWith('2.4')) {
+		if (folder.equals('js')) { folder="javascripts" }
+		if (folder.equals('css')) { folder="stylesheets" }
+		 
+		return "grails-app/assets/${folder}/${addon}"
+	}else{
+		return "web-app/${folder}/"
+	}
+}
 private createTemplate(SimpleTemplateEngine engine, relativePath, binding) {
 	engine.createTemplate(new FileReader("$arrestedPluginDir/src/templates/$relativePath")).make(binding)
 }

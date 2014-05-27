@@ -9,7 +9,7 @@ AngularJs + RESTful = Arrested
 # Installation:
 
 Add plugin Dependency in BuildConfig.groovy :
->compile ":arrested:1.21"
+>compile ":arrested:1.22"
 
 
 # Getting Started
@@ -112,15 +112,24 @@ Refer to Bootstrap configuration on this demo project to see how that works, onc
 ### Version info:
 
 ```
-
-1.21 : assets support has now been added, 2.4.0+ apps configured for assets  2.3X < support for resources remains
+1.22 : 	proper version checks put in place nice methods to call resources/assets in place ready for future changes.
+		css/js files moved internal to user application, cors plugin removed, additional fonts added to site and 
+		whilst everything looks great on 2.4+, on 2.3X- the fonts no longer load up so it appears as missing icons,
+		the fix currently is for those pre 2.4 to search replace ../fonts and replace with fonts in web-app/css/
+		font-awesome and I think it was bootstrap-glyhphicon.css.
+		 
+		
+1.21 : 	assets support has now been added, 2.4.0+ apps configured for assets  2.3X < support for resources remains
  
-1.20 : various updates to support grails 2.4.0+, at the moment still relying on resources plugin. Updates to edit.html to bring in line with 2.4 verification, further updates to internal script to support hibernate4 when calling cp.
+1.20 : 	various updates to support grails 2.4.0+, at the moment still relying on resources plugin. Updates to 
+		edit.html to bring in line with 2.4 verification, further updates to internal script to support hibernate4
+		when calling cp.
 
-1.19 : ngTable added, pagination support. (issues with filtering). UI table changes due to module addition.
-arrestedInternal Script updated:  moved html content to files and tidied up installation script.
+1.19 : 	ngTable added, pagination support. (issues with filtering). UI table changes due to module addition. 
+		arrestedInternal Script updated:  moved html content to files and tidied up installation script.
 
-1,18 : 	Issues with JSON parsing fixed, hopefully for good now. directive to check existing username added - and verification added to update/signup features.
+1,18 : 	Issues with JSON parsing fixed, hopefully for good now. directive to check existing username added.
+		 - and verification added to update/signup features.
 
 1.17 :	Controller.gsp generated based upon existing Ctrl.js files. UI tidyup - update returned to row click.
 
@@ -128,25 +137,34 @@ arrestedInternal Script updated:  moved html content to files and tidied up inst
 
 1.15 :	ui updates, tidy up
 
-1.14 :	user added to navbar with drop down allowing updates to account. Fixed updateResources so that only available ctrl files are added to ApplicationResources.
+1.14 :	user added to navbar with drop down allowing updates to account. Fixed updateResources so that only
+ 		available ctrl files are added to ApplicationResources.
 
-1.13 : 	il8n support added to controller responses, server responses are now being returned to angularJS, error messages returned now in line with fields.
+1.13 : 	il8n support added to controller responses, server responses are now being returned to angularJS, error
+ 		messages returned now in line with fields.
 
-1.12 : 	Issues reported and found in older Grails with JSON parsing, and on going sign up issues. Both now fixed. tidy up of userController.js
+1.12 : 	Issues reported and found in older Grails with JSON parsing, and on going sign up issues. Both now fixed.
+		tidy up of userController.js
 
-1.11 : 	Issue saving records, as String added to json.parse values of user name,password,passwordConfirm within ArrestedUserController
+1.11 : 	Issue saving records, as String added to json.parse values of user name,password,passwordConfirm within
+		ArrestedUserController
 
 1.10 : 	Sign-up added, logout button added, il8n support added, HTML pages converted to GSP pages. 	
 
-1.9 : 	Basic AngularJS form validation added to master edit.html - numbers min/max validation string minSize/maxSize/pattern validations. Form update/Save disabled until form is valid
+1.9 : 	Basic AngularJS form validation added to master edit.html - numbers min/max validation string minSize/
+		maxSize/pattern validations. Form update/Save disabled until form is valid
 
 1.8 :	Should have tested 1.7 properly - whilst it worked in one field instance, bugs with multiElement. Now fixed
 
-1.7 :	edit.html constraints not working - now fixed, added extra sha256Password encryption to testUnit for controller
+1.7 :	edit.html constraints not working - now fixed, added extra sha256Password encryption to testUnit for 
+		controller
 
-1.6 : 	Fixed issue with applications that have a dash / (hyphens). This was due to var in index.js also adopting dashes and breaking JavaScript, 
-		Added extra autoComplete="off" to login form, a limitation in where browser saved passwords auto complete does not work well with this technology.
-		In order to successfully log in, user must fill in user name and password. The extra additions to login.html appears to have fixed on FireFox. 
+1.6 : 	Fixed issue with applications that have a dash / (hyphens). This was due to var in index.js also adopting 
+		dashes and breaking JavaScript, 
+		Added extra autoComplete="off" to login form, a limitation in where browser saved passwords auto complete 	
+		does not work well with this technology.
+		In order to successfully log in, user must fill in user name and password. The extra additions to 
+		login.html appears to have fixed on FireFox. 
 
 1.5 : 	changed static/Views to Views - this caused issued on 2.3.7+, removed serverHost change
 		resource to a dynamic call within service.js

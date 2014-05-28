@@ -7,7 +7,7 @@ modules = {
 
     bootstrap {
         dependsOn 'angularControllers'
-        resource url:'css/bootstrap.min.css'
+        resource url:'css/bootstrap.css'
         resource url:'js/bootstrap/bootstrap.js'
         resource url:'css/bootstrap-glyphicons.css'
         resource url:'css/font-awesome.css'

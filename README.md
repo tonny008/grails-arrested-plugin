@@ -112,6 +112,8 @@ Refer to Bootstrap configuration on this demo project to see how that works, onc
 ### Version info:
 
 ```
+1.23 :	Fixed missing fonts issue with pre 2.4 release using internal css/fonts. 
+
 1.22 : 	proper version checks put in place nice methods to call resources/assets in place ready for future changes.
 		css/js files moved internal to user application, cors plugin removed, additional fonts added to site and 
 		whilst everything looks great on 2.4+, on 2.3X- the fonts no longer load up so it appears as missing icons,

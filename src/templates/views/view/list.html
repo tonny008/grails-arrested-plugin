@@ -29,7 +29,7 @@
                         	
                             <%  props.eachWithIndex { p,index -> %>
                             	<% if (index==0) { %>
-                             		<td data-sortable="'${p.name}'" filter="{ '${p.name}': 'text' }"  data-title="'${p.name}'"  >
+                             		<td data-sortable="'${p.name}'" filter="{'${p.name}':'text'}"  data-title="'${p.name}'"  >
                             	<%  }else{ %>
                             		<td data-sortable="'${p.name}'"  data-title="'${p.name}'"  >
                             	<%  } %>

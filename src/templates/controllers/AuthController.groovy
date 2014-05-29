@@ -15,6 +15,10 @@ class AuthController extends ArrestedController {
 			}
 		}
 	}
+	/*
+	def setLang(String lang) {
+		session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).toString().substring(0,2), lang)	
+	}*/
 	
 	def showUpdated() {
 		renderSuccess("","${message(code: 'default.details.updated.label', default: 'Information has been updated')}")

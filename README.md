@@ -9,7 +9,7 @@ AngularJs + RESTful = Arrested
 # Installation:
 
 Add plugin Dependency in BuildConfig.groovy :
->compile ":arrested:1.22"
+>compile ":arrested:1.24"
 
 
 # Getting Started
@@ -112,6 +112,9 @@ Refer to Bootstrap configuration on this demo project to see how that works, onc
 ### Version info:
 
 ```
+
+1.24 : 	Bug fix: Search/filter issue found fixed
+
 1.23 :	Fixed missing fonts issue with pre 2.4 release using internal css/fonts. 
 
 1.22 : 	proper version checks put in place nice methods to call resources/assets in place ready for future changes.

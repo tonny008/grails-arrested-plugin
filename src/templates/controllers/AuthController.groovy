@@ -15,10 +15,14 @@ class AuthController extends ArrestedController {
 			}
 		}
 	}
-	/*
-	def setLang(String lang) {
-		session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).toString().substring(0,2), lang)	
-	}*/
+	
+	def setLang() {
+		def data=params.instance ?: request?.JSON?.instance ?: JSON.parse(params?.instance)
+		String lang=data as String
+		//session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).toString().substring(0,2), lang)
+		session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(lang)
+		renderSuccess(lang,"${message(code: 'default.lang.changed.label', default: 'Language changed')}")
+	}
 	
 	def showUpdated() {
 		renderSuccess("","${message(code: 'default.details.updated.label', default: 'Information has been updated')}")
@@ -51,7 +55,7 @@ class AuthController extends ArrestedController {
 	def lookup(){
 		def data=request.JSON
 		if (!data) {
-			instance=JSON.parse(params)
+			data=JSON.parse(params)
 		}
 		String username=data.username as String
 		if(username){

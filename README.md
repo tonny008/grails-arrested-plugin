@@ -9,7 +9,7 @@ AngularJs + RESTful = Arrested
 # Installation:
 
 Add plugin Dependency in BuildConfig.groovy :
->compile ":arrested:1.26"
+>compile ":arrested:1.27"
 
 
 # Getting Started
@@ -112,6 +112,8 @@ Refer to Bootstrap configuration on this demo project to see how that works, onc
 ### Version info:
 
 ```
+1.27 : 	Minor bug css issues with pre 2.4 now fixed. (images still not appearing on grails pre 2.4)
+ 
 1.26 :	Changed call method to change lang support to login/signup pages. Removes duplicate auth
 		until token updates put in place.
 		

@@ -410,7 +410,8 @@ target(updateLayout: "Update the layout view") {
     def (pkg, prefix) = parsePrefix()
 	def engine = new SimpleTemplateEngine()
 	def addConf = [app: shortname]
-
+	def appStyle=validateStyling(appVersion)
+	
 	def jpathController=verifyGrailsVersion(appVersion, 'js', '')
 	File dir = new File(arrestedPluginDir, "src/templates/assets/javascripts")
 	dir.eachFileRecurse{
@@ -418,7 +419,7 @@ target(updateLayout: "Update the layout view") {
 			if (!okToWrite("${basedir}/${jpathController}/$f.name")) {
 				return
 			}
-			println "Creating Assets javascripts folder: $f.name"
+			println "Creating ${appStyle} javascripts folder: $f.name"
 			dir = new File(arrestedPluginDir, "src/templates/assets/javascripts/$f.name")
 			copy(todir: new File(basedir, jpathController+'/'+f.name)) {
 				fileset dir: dir
@@ -426,28 +427,26 @@ target(updateLayout: "Update the layout view") {
 		}
 	}
 	
-	def csspathController=verifyGrailsVersion(appVersion, 'css', '')
-	dir = new File(arrestedPluginDir, "src/templates/assets/stylesheets")
-	if (!okToWrite(csspathController)) {
-		return
-	}
-	println "Creating fonts folder: ${csspathController}"
-	copy(todir: new File(basedir, csspathController)) {
-		fileset dir: dir
-	}
-
-	
-	
 	
 	def navbar = createTemplate(engine, 'views/layouts/_navbar.gsp', addConf)
 	writeToFile("grails-app/views/layouts/_navbar.gsp",navbar.toString())
 	
 	
-		
-	def appStyle=validateStyling(appVersion)
+	def csspathController=verifyGrailsVersion(appVersion, 'css', '')
+	
 	
 	if (appStyle.is('assets')) {
-
+		
+		dir = new File(arrestedPluginDir, "src/templates/assets/stylesheets")
+		if (!okToWrite(csspathController)) {
+			return
+		}
+		println "Creating fonts folder: ${csspathController}"
+		copy(todir: new File(basedir, csspathController)) {
+			fileset dir: dir
+		}
+		
+		
 		dir = new File(arrestedPluginDir, "src/templates/fonts")
 		if (!okToWrite("${basedir}/web-app/fonts")) {
 			return
@@ -475,6 +474,7 @@ target(updateLayout: "Update the layout view") {
 		if (!okToWrite("${basedir}/web-app/css/fonts")) {
 			return
 		}
+		
 		println "Creating fonts folder: web-app/fonts"
 		copy(todir: new File(basedir, 'web-app/css/fonts')) {
 			fileset dir: dir
@@ -483,19 +483,11 @@ target(updateLayout: "Update the layout view") {
 		def maingsp = createTemplate(engine, 'views/layouts/main.gsp', addConf)
 		writeToFile("grails-app/views/layouts/main.gsp",maingsp.toString())
 	
-		/*copy(file:"$arrestedPluginDir/src/templates/views/css/bootstrap-glyphicons.css",
-			tofile: "$basedir/web-app/css/bootstrap-glyphicons.css", overwrite: true)
 		
-		copy(file:"$arrestedPluginDir/src/templates/views/css/font-awesome.css",
-			tofile: "$basedir/web-app/css/font-awesome.css", overwrite: true)*/
-		
-		def rcsspathController=verifyGrailsVersion(appVersion, 'css', '')
 		dir = new File(arrestedPluginDir, "src/templates/views/css")
-		if (!okToWrite(rcsspathController)) {
-			return
-		}
-		println "Creating fonts folder: ${rcsspathController}"
-		copy(todir: new File(basedir, rcsspathController)) {
+		println "Creating fonts folder: ${csspathController}"
+		dir = new File(arrestedPluginDir, "src/templates/views/css")
+		copy(todir: new File(basedir, csspathController)) {
 			fileset dir: dir
 		}
 			

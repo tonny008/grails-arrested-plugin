@@ -5,13 +5,37 @@ import arrested.ArrestedController
 import org.apache.shiro.crypto.hash.Sha256Hash
 
 class AuthController extends ArrestedController {
-
+	
     static allowedMethods = [login: "POST", logout: "GET"]
 	
 	def showUpdatePassword() {
 		withFormat {
 			html {
 				render(view: "update")
+			}
+		}
+	}
+	
+	def listLocale() {
+		def countries = [] 
+		def supported=grailsApplication.config.arrested.supported.i18n ?: ['en','de'] 
+		def locale = Locale.getAvailableLocales().collect { availableLocale ->
+			def countryMap = [:]
+			//def lang=availableLocale?.getLanguage()?.toString() ?: availableLocale.toString()
+			def countryname=availableLocale?.getDisplayName()?.toString() ?: availableLocale.toString()
+			if (supported.find{((it==availableLocale as String)||(it=='*'))}) {
+			countryMap.put('value', availableLocale as String)
+			countryMap.put('text', countryname)
+			countries?.add(countryMap)
+			}
+		}
+		countries = countries.sort { it }
+		withFormat{
+			xml {
+				render countries as XML
+			}
+			json {
+				render countries as JSON
 			}
 		}
 	}
@@ -23,6 +47,7 @@ class AuthController extends ArrestedController {
 		session['org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'] = new Locale(lang)
 		renderSuccess(lang,"${message(code: 'default.lang.changed.label', default: 'Language changed')}")
 	}
+	
 	
 	def showUpdated() {
 		renderSuccess("","${message(code: 'default.details.updated.label', default: 'Information has been updated')}")

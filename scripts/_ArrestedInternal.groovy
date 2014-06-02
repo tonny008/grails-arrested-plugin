@@ -366,23 +366,19 @@ target(createController: "Creates a standard controller") {
 }
 
 target(createJSController: "Creates a standard angular controller") {
-    depends(compile)
-    depends(loadApp)
+    depends(compile,loadApp)
+	def engine = new SimpleTemplateEngine()
     def (pkg, prefix) = parsePrefix()
     def className = prefix + "Ctrl"
+	def cpathController=verifyGrailsVersion(appVersion, 'js', 'custom-'+appName)
     def domainClasses = grailsApp.domainClasses
     domainClasses.each {
         domainClass ->
             if (domainClass.getShortName() == prefix) {
-				def cpathController=verifyGrailsVersion(appVersion, 'js', 'custom-'+appName)
-				installTemplateEx("${className}.js", cpathController, "views/controllers", "Controller.js") {
-                        ant.replace(file: artefactFile) {
-                        ant.replacefilter(token: '@controller.name@', value: className)
-                        ant.replacefilter(token: '@class.name@', value: prefix)
-                        ant.replacefilter(token: '@class.instance@', value: domainClass.getPropertyName())
-                        ant.replacefilter(token: '@app.name@', value: Metadata.current.'app.name')
-                    }
-                }
+				def addConf=[contName:className,className:prefix,
+					instance:domainClass.getPropertyName(),appName:appName]
+				def clsjs = createTemplate(engine, 'views/controllers/Controller.js', addConf)
+				writeToFile("${cpathController}/${className}.js",clsjs.toString())
             }
     }
     depends(compile)
@@ -391,17 +387,19 @@ target(createJSController: "Creates a standard angular controller") {
 target(createAngularUser: "Create the angular user controller") {
     depends(compile)
     def (pkg, prefix) = parsePrefix()
+	def engine = new SimpleTemplateEngine()
 	def cpathUser=verifyGrailsVersion(appVersion, 'js', 'custom-'+appName)
-    installTemplateEx("userCtrl.js", cpathUser, "views/controllers", "userController.js") {
-        ant.replace(file: artefactFile) {
-            ant.replacefilter(token: '@app.name@', value: appName)
-        }
-    }
+	def addConf=[appName:appName]
+	localmkdir("$basedir/${cpathUser}")
+	def usrctl = createTemplate(engine, 'views/controllers/userController.js', addConf)
+	writeToFile("${cpathUser}/userCtrl.js",usrctl.toString())
+	
+	installTemplateEx("clockCtrl.js", cpathUser, "views/controllers", "clockController.js") {}
     installTemplateEx("login.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "login.html") {}
 	installTemplateEx("signup.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "signup.html") {}
 	installTemplateEx("update.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "update.html") {}
 	installTemplateEx("update-username.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "update-username.html") {}
-    println("userController.js and login.html signup.html created")
+    println("userController.js and login.html signup.html clockCtrl.js created")
     depends(compile)
 }
 
@@ -431,22 +429,30 @@ target(updateLayout: "Update the layout view") {
 	def navbar = createTemplate(engine, 'views/layouts/_navbar.gsp', addConf)
 	writeToFile("grails-app/views/layouts/_navbar.gsp",navbar.toString())
 	
-	
 	def csspathController=verifyGrailsVersion(appVersion, 'css', '')
+	
+	dir = new File(arrestedPluginDir, "src/templates/assets/stylesheets")
+	if (!okToWrite(csspathController)) {
+		return
+	}
+	println "Creating fonts folder: ${csspathController}"
+	copy(todir: new File(basedir, csspathController)) {
+		fileset dir: dir
+	}
+	
+	def i18n="${basedir}/grails-app/i18n"
+	dir = new File(arrestedPluginDir, "src/templates/i18n")
+	if (!okToWrite(i18n)) {
+		return
+	}
+	println "Creating i18n folder: ${i18n} and copying DE and EN"
+	copy(todir: new File(basedir, "grails-app/i18n")) {
+		fileset dir: dir
+	}
 	
 	
 	if (appStyle.is('assets')) {
-		
-		dir = new File(arrestedPluginDir, "src/templates/assets/stylesheets")
-		if (!okToWrite(csspathController)) {
-			return
-		}
-		println "Creating fonts folder: ${csspathController}"
-		copy(todir: new File(basedir, csspathController)) {
-			fileset dir: dir
-		}
-		
-		
+	
 		dir = new File(arrestedPluginDir, "src/templates/fonts")
 		if (!okToWrite("${basedir}/web-app/fonts")) {
 			return
@@ -469,7 +475,6 @@ target(updateLayout: "Update the layout view") {
 		writeToFile("grails-app/assets/stylesheets/application.css",appcss.toString())	
 		
 	}else if (appStyle.is('resources')) {
-	
 		dir = new File(arrestedPluginDir, "src/templates/fonts")
 		if (!okToWrite("${basedir}/web-app/css/fonts")) {
 			return
@@ -483,14 +488,29 @@ target(updateLayout: "Update the layout view") {
 		def maingsp = createTemplate(engine, 'views/layouts/main.gsp', addConf)
 		writeToFile("grails-app/views/layouts/main.gsp",maingsp.toString())
 	
-		
+		/*
 		dir = new File(arrestedPluginDir, "src/templates/views/css")
 		println "Creating fonts folder: ${csspathController}"
 		dir = new File(arrestedPluginDir, "src/templates/views/css")
 		copy(todir: new File(basedir, csspathController)) {
 			fileset dir: dir
-		}
+		}*/
+		
+		// Unhappy with previous method lots of duplicate css files around 
+		// New method first copies assets css files over 
+		// uses new method to call file and parse it 
+		
+		//def replacements=['../images/':'images/','../fonts/':'fonts/']
+		def replacements=['../fonts/':'fonts/']
+		def glyphicon = fileToString('assets/stylesheets/bootstrap-glyphicons.css')
+		parseToFile("web-app/css/bootstrap-glyphicons.css",glyphicon.toString(),replacements)
 			
+		def btstrp = fileToString('assets/stylesheets/bootstrap.css')
+		parseToFile("web-app/css/bootstrap.css",btstrp.toString(),replacements)
+		
+		def fntawsome = fileToString('assets/stylesheets/font-awesome.css')
+		parseToFile("web-app/css/font-awesome.css",fntawsome.toString(),replacements)
+		
 		copy(file:"$arrestedPluginDir/src/templates/views/js/application.js",
 		tofile: "$basedir/web-app/js/application.js", overwrite: false)
 		
@@ -520,8 +540,6 @@ target(createControllerGsp: "Create the angular controller.gsp template") {
 	StringBuilder rul=new StringBuilder()
 	def cpathUser=verifyGrailsVersion(appVersion, 'js', 'custom-'+appName)
 	names.each {
-		
-		//if (new File("${basedir}/web-app/js/${it.className}Ctrl.js").exists()) {
 		if (new File("${basedir}/${cpathUser}/${it.className}Ctrl.js").exists()) {
 			rul.append('\t <a  ng-class="isSelected(\'').append(it.propertyName).append('\')')
 			rul.append('? \'btn btn-primary\' :\'btn btn-default\'"  ng-click="setSelectedController(\'').append(it.propertyName).append('\')" ')
@@ -574,6 +592,16 @@ writeToFile= { String file, String content ->
 	new File(basedir, "$file").write(content.toString())
 }
 
+parseToFile= { String file, String content,binding ->
+	if (!okToWrite(file)) {
+		return
+	}
+	
+	binding.each { k,v ->
+		content=content.toString().replace(k,v)
+	}
+	new File(basedir, "$file").write(content.toString())
+}
 private validateStyling(String appVersion) {
 	double verify=getGrailsVersion(appVersion)
 	if (verify >= 2.4 ) {
@@ -602,6 +630,9 @@ private verifyGrailsVersion(String appVersion, String folder,String addon) {
 
 private createTemplate(SimpleTemplateEngine engine, relativePath, binding) {
 	engine.createTemplate(new FileReader("$arrestedPluginDir/src/templates/$relativePath")).make(binding)
+}
+private fileToString(relativePath) {
+	new FileReader("$arrestedPluginDir/src/templates/$relativePath").text
 }
 
 

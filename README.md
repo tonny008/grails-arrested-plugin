@@ -9,7 +9,11 @@ AngularJs + RESTful = Arrested
 # Installation:
 
 Add plugin Dependency in BuildConfig.groovy :
->compile ":arrested:1.27"
+>compile ":arrested:1.28"
+
+## Installation information warning
+
+We recommend you create a new project to install this plugin into, if you have an existing project be warning files such as index.gsp main.gsp i18n messages.properties messages_de.properties are overwritten. Lots of new files are added to this project.Please ensure you have backed up the project if it is an existing one.
 
 
 # Getting Started
@@ -107,17 +111,43 @@ Authors have many books. To log in
 Refer to Bootstrap configuration on this demo project to see how that works, once in, you can create authors then add books to those authors.
   
 
+## ver 1.28+ i18n information
 
+By default messages.properties messages_de.properties are copied to your i18n folder.
+
+
+You are required to configure in Config.groovy the following configuration for any additional language you wish to support: 
+
+```
+
+arrested.supported.i18n=['en','de','es_PE','es']
+
+// For all locales simply enable this:
+arrested.supported.i18n=['*']
+```
+
+Please refer to [supported i18n files](https://github.com/vahidhedayati/testingarrested/wiki/Supported-i18n-locales---for-you-to-create) . These values can be used in the above array  - or use the * which are all of the supported Locales.
+
+
+
+[For alternative method of loading up locales i.e. via a select box](https://github.com/vahidhedayati/testingarrested/wiki/Alternative-method-of-calling-locales---via-select-box)
+ 
+[manually creating locales entries](https://github.com/vahidhedayati/testingarrested/wiki/Manually-defining-locales)
 
 ### Version info:
 
 ```
+1.28 :	Further tidy up of arrestedInstaller, removed duplicate css/js files and used one set, 
+		css parsed for resources. proper details on how to use i18n now provided, the files copied to 
+		user's project folder. override function provided to add additional i18n support from users
+		Config.groovy. Moved clock over to clockCtrl.js
+		
 1.27 : 	Minor bug css issues with pre 2.4 now fixed. (images still not appearing on grails pre 2.4)
  
 1.26 :	Changed call method to change lang support to login/signup pages. Removes duplicate auth
 		until token updates put in place.
 		
-1.25 : 	Live clock/user date/time displayed, il8n support passed through to grails. Further work is required 
+1.25 : 	Live clock/user date/time displayed, i18n support passed through to grails. Further work is required 
 		to pass token to header in order to stop re-authentication.
 		
 1.24 : 	Bug fix: Search/filter issue found fixed
@@ -152,7 +182,7 @@ Refer to Bootstrap configuration on this demo project to see how that works, onc
 1.14 :	user added to navbar with drop down allowing updates to account. Fixed updateResources so that only
  		available ctrl files are added to ApplicationResources.
 
-1.13 : 	il8n support added to controller responses, server responses are now being returned to angularJS, error
+1.13 : 	i18n support added to controller responses, server responses are now being returned to angularJS, error
  		messages returned now in line with fields.
 
 1.12 : 	Issues reported and found in older Grails with JSON parsing, and on going sign up issues. Both now fixed.
@@ -161,7 +191,7 @@ Refer to Bootstrap configuration on this demo project to see how that works, onc
 1.11 : 	Issue saving records, as String added to json.parse values of user name,password,passwordConfirm within
 		ArrestedUserController
 
-1.10 : 	Sign-up added, logout button added, il8n support added, HTML pages converted to GSP pages. 	
+1.10 : 	Sign-up added, logout button added, i18n support added, HTML pages converted to GSP pages. 	
 
 1.9 : 	Basic AngularJS form validation added to master edit.html - numbers min/max validation string minSize/
 		maxSize/pattern validations. Form update/Save disabled until form is valid

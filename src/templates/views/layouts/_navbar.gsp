@@ -17,19 +17,17 @@
 		<div class="collapse navbar-collapse navbar-ex1-collapse" role="navigation">
     	<ul class="nav navbar-nav">
 			<li class="controller">
-				<div id="h2Header"><g:message code="default.welcome.title" args="[meta(name:'app.name')]"/> </div>
+				<div id="h2Header"><g:message code="default.title" args="[meta(name:'app.name')]"/> </div>
+				<div id="underHeader"><a class="fa  fa-clock-o icon-color"  data-ng-controller="ClockCtrl"  data-ng-init="showClock()" >
+         		{{clock.now}}
+         		</a>
+         		</div>
 			</li>
 			
          </ul>
          <ul  class="nav navbar-nav navbar-right" >
          
-	
-         	<li class="controller">
-         		<a class="fa  fa-clock-o icon-color">
-         		{{clock.now}}
-         		</a>
-         	</li>
-         	<li  class="dropdown controller">
+	       	<li  class="dropdown controller">
 				<a class="dropdown-toggle" role="button" data-toggle="dropdown">
 					<span id="userMessage">
 						<span class="glyphicon glyphicon-user"></span>

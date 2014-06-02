@@ -16,6 +16,7 @@ modules = {
 		dependsOn 'ngRoute'
 		resource url:'js/arrestedDirectives.js'
 		resource url:'js/userCtrl.js'
+		resource url:'js/clockCtrl.js'
 $customAngularControllers
 	}
  

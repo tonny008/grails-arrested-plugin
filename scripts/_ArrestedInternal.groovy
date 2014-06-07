@@ -297,6 +297,7 @@ target(createAngularIndex: "Create the angular file configuration") {
                 "    '\$routeProvider',\n" +
                 "    function(\$routeProvider) {\n" +
                 "        \$routeProvider."
+		//writer.writeLine "            when('/dashboard', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/dashboard', controller: 'UserCtrl', resolve: { lang: function(SessionService) {return SessionService.getLang()}}})."
         writer.writeLine "            when('/login', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showLogin', controller: 'UserCtrl'})."
 		writer.writeLine "            when('/signup', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showSignup', controller: 'UserCtrl'})."
 		writer.writeLine "            when('/updatepassword', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showUpdatePassword', controller: 'UserCtrl'})."
@@ -314,6 +315,18 @@ target(createAngularIndex: "Create the angular file configuration") {
         writer.writeLine "            otherwise({redirectTo: '/login'});"
         writer.writeLine "    }"
         writer.writeLine "]);"
+		
+		
+		/*.when('/dashboard', {
+			templateUrl: 'views/dashboard.html',
+			controller: 'DashboardController',
+			resolve: {
+			user: function(SessionService) {
+			return SessionService.getCurrentUser();
+			}
+			}
+			})*/
+		
 	 }
 	
 	 def addConf = [shortname: shortname]

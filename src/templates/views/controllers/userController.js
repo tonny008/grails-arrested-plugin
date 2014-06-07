@@ -26,8 +26,7 @@ function UserCtrl(\$rootScope,\$scope, DAO){
        return \$rootScope.selectedController===name;
       }
     };
-    	 
-  
+    
     \$rootScope.setLang= function(lang){
     	\$rootScope.errors.errorMessages=[];
         DAO.update({appName: \$rootScope.appConfig.appName, token: \$rootScope.appConfig.token, controller:'auth', action:'setLang', instance:lang},

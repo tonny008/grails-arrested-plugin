@@ -1,25 +1,25 @@
 'use strict';
-function $contName(DAO, \$rootScope, \$scope, \$filter, ngTableParams)
+function $contName(DAO, \$scope, \$filter, ngTableParams)
 {
-	if (\$rootScope.appConfig) {
-		if (!\$rootScope.appConfig.token!='') {
+	if (\$scope.appConfig) {
+		if (!\$scope.appConfig.token!='') {
 			window.location.href = "#/login"
 		}
 	}
 
-	\$rootScope.flags = {save: false};
-	\$rootScope.errors = {loadingSite: false, showErrors: false, showServerError: false,errorMessages:[]};
-	\$rootScope.errorValidation = function(){
-	   \$rootScope.errors = {loadingSite: true};
+	\$scope.flags = {save: false};
+	\$scope.errors = {loadingSite: false, showErrors: false, showServerError: false,errorMessages:[]};
+	\$scope.errorValidation = function(){
+	   \$scope.errors = {loadingSite: true};
 	};
 	
-	if(!\$rootScope.${instance}){
-		\$rootScope.filter = ""
-		\$rootScope.${instance}s = [];
-		\$rootScope.${instance} = {};
+	if(!\$scope.${instance}){
+		\$scope.filter = ""
+		\$scope.${instance}s = [];
+		\$scope.${instance} = {};
 	}
 
-	\$rootScope.tableParams = new ngTableParams({
+	\$scope.tableParams = new ngTableParams({
         page: 1,            // show first page
         count: 10,           // count per page
         sorting: {
@@ -27,167 +27,136 @@ function $contName(DAO, \$rootScope, \$scope, \$filter, ngTableParams)
         }
 	}, {
 		getData: function(\$defer, params) {
-			DAO.query({appName: \$rootScope.appConfig.appName, token: \$rootScope.appConfig.token, controller: '${instance}', action: 'list'},	
-				\$rootScope.loadingSite=true,
+			DAO.query({appName: \$scope.appConfig.appName, token: \$scope.appConfig.token, controller: '${instance}', action: 'list'},	
+				\$scope.loadingSite=true,
 					function (result) {
-						\$rootScope.${instance}s=result;
-						var putIt  = params.sorting() ? \$filter('orderBy')(\$rootScope.${instance}s, params.orderBy()): id;
+						\$scope.${instance}s=result;
+						var putIt  = params.sorting() ? \$filter('orderBy')(\$scope.${instance}s, params.orderBy()): id;
 						putIt = params.filter ? \$filter('filter')( putIt, params.filter()) :  putIt;
 						params.total(putIt.length);
 						\$defer.resolve(putIt.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-						\$rootScope.${instance}s=(putIt.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-						\$rootScope.loadingSite=false;   
+						\$scope.${instance}s=(putIt.slice((params.page() - 1) * params.count(), params.page() * params.count()));
+						\$scope.loadingSite=false;   
 					},
 					function (error) {
-						\$rootScope.errors.showErrors = true;
-						\$rootScope.errors.showServerError = true;
-						\$rootScope.errors.errorMessages.push(''+error.status+' '+error.data);
-						\$rootScope.loadingSite=false;
+						\$scope.errors.showErrors = true;
+						\$scope.errors.showServerError = true;
+						\$scope.errors.errorMessages.push(''+error.status+' '+error.data);
+						\$scope.loadingSite=false;
 					});
       	}
     });
-	// @deprecated
-	\$rootScope.getAll$className = function () {
+	
+	//Required for dependency lookup 
+	\$scope.getAll$className = function () {
 		//get all
-		\$rootScope.errors.errorMessages=[];
-		 DAO.query({appName: \$rootScope.appConfig.appName, token: \$rootScope.appConfig.token, controller: '${instance}', action: 'list'},	
-		 	\$rootScope.loadingSite=true,
-		 	function (result) {
-			 	\$rootScope.tableParams = new ngTableParams({
-			 		page: 1,            // show first page
-			 		count: 10,           // count per page
-			 		sorting: {
-			 			id : 'desc' // initial sorting
-			 		}
-			 	}, {
-			 		total: result.length,
-			 		getData: function(\$defer, params) {
-			 			\$rootScope.${instance}s  = params.sorting() ? \$filter('orderBy')(result, params.orderBy()): id;
-			 			//params.total(putIt.length);
-			 			\$defer.resolve(\$rootScope.${instance}s.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-			 			\$rootScope.${instance}s=(\$rootScope.${instance}s.slice((params.page() - 1) * params.count(), params.page() * params.count()));
-			 		}
-			 	});
-		        \$rootScope.loadingSite=false;   
-		    },
-		    function (error) {
-		        \$rootScope.errors.showErrors = true;
-		        \$rootScope.errors.showServerError = true;
-		        \$rootScope.errors.errorMessages.push(''+error.status+' '+error.data);
-		        \$rootScope.loadingSite=false;
-		     });
-		       
-	};
-	 
-	/*
-	\$rootScope.getAllOld$className = function () {
-		//get all
-		\$rootScope.errors.errorMessages=[];
-		DAO.query({appName: \$rootScope.appConfig.appName, token: \$rootScope.appConfig.token, controller: '${instance}', action: 'list'},
-		\$rootScope.loadingSite=true,
+		\$scope.errors.errorMessages=[];
+		DAO.query({appName: \$scope.appConfig.appName, token: \$scope.appConfig.token, controller: '${instance}', action: 'list'},
+		\$scope.loadingSite=true,
 		function (result) {
-			\$rootScope.${instance}s = result;
-			\$rootScope.loadingSite=false;   
+			\$scope.${instance}s = result;
+			\$scope.loadingSite=false;   
 			
 		},
 		function (error) {
-			\$rootScope.errors.showErrors = true;
-			\$rootScope.errors.showServerError = true;
-			\$rootScope.errors.errorMessages.push(''+error.status+' '+error.data);
-			\$rootScope.loadingSite=false;
+			\$scope.errors.showErrors = true;
+			\$scope.errors.showServerError = true;
+			\$scope.errors.errorMessages.push(''+error.status+' '+error.data);
+			\$scope.loadingSite=false;
 		});
 	};
-	 */
-	\$rootScope.new$className = function () {
-		\$rootScope.loadingSite=true;
-		\$rootScope.${instance} = {};
-		\$rootScope.loadingSite=false;
+	 
+	
+	\$scope.new$className = function () {
+		\$scope.loadingSite=true;
+		\$scope.${instance} = {};
+		\$scope.loadingSite=false;
 		window.location.href = "#/${instance}/create"		
 	}
 
-	\$rootScope.manualSave$className = function () {
-		\$rootScope.loadingSite=true;
-		\$rootScope.flags.save = false;
-		if (\$rootScope.${instance}.id == undefined)
+	\$scope.manualSave$className = function () {
+		\$scope.loadingSite=true;
+		\$scope.flags.save = false;
+		if (\$scope.${instance}.id == undefined)
 		{
-			\$rootScope.save$className();
+			\$scope.save$className();
 		}
 		else
 		{
-			\$rootScope.update$className();
+			\$scope.update$className();
 		}
 	}
 
-	\$rootScope.save$className = function () {
-		\$rootScope.errors.errorMessages=[];
-		DAO.save({appName: \$rootScope.appConfig.appName, token: \$rootScope.appConfig.token, instance:\$rootScope.${instance}, controller:'${instance}', action:'save'},
+	\$scope.save$className = function () {
+		\$scope.errors.errorMessages=[];
+		DAO.save({appName: \$scope.appConfig.appName, token: \$scope.appConfig.token, instance:\$scope.${instance}, controller:'${instance}', action:'save'},
 		function (result) {
-			\$rootScope.${instance} = result;
-			\$rootScope.flags.save = true;
-			\$rootScope.loadingSite=false;
+			\$scope.${instance} = result;
+			\$scope.flags.save = true;
+			\$scope.loadingSite=false;
 
 		},
 		function (error) {
-			\$rootScope.flags.save = false;
-			\$rootScope.errors.showErrors = true;
-			\$rootScope.errors.showServerError = true;
-			\$rootScope.errors.errorMessages.push(''+error.status+' '+error.data);
-			\$rootScope.loadingSite=false;   
+			\$scope.flags.save = false;
+			\$scope.errors.showErrors = true;
+			\$scope.errors.showServerError = true;
+			\$scope.errors.errorMessages.push(''+error.status+' '+error.data);
+			\$scope.loadingSite=false;   
 		});
 	}
 
-	\$rootScope.update$className = function () {
-		\$rootScope.errors.errorMessages=[];
-		DAO.update({appName: \$rootScope.appConfig.appName, token: \$rootScope.appConfig.token, instance:\$rootScope.${instance}, controller:'${instance}', action:'update'},
-		\$rootScope.loadingSite=true,
+	\$scope.update$className = function () {
+		\$scope.errors.errorMessages=[];
+		DAO.update({appName: \$scope.appConfig.appName, token: \$scope.appConfig.token, instance:\$scope.${instance}, controller:'${instance}', action:'update'},
+		\$scope.loadingSite=true,
 		function (result) {
-			\$rootScope.${instance}s = result;
-			\$rootScope.flags.save = true;
-			\$rootScope.loadingSite=false;
+			\$scope.${instance}s = result;
+			\$scope.flags.save = true;
+			\$scope.loadingSite=false;
 			window.location.href = "#/${instance}/list"
 		},
 		function (error) {
-			\$rootScope.flags.save = false;
-			\$rootScope.errors.showErrors = true;
-			\$rootScope.errors.showServerError = true;
-			\$rootScope.errors.errorMessages.push(''+error.status+' '+error.data);
-			\$rootScope.loadingSite=false;
+			\$scope.flags.save = false;
+			\$scope.errors.showErrors = true;
+			\$scope.errors.showServerError = true;
+			\$scope.errors.errorMessages.push(''+error.status+' '+error.data);
+			\$scope.loadingSite=false;
 		});
 	}
 
-	\$rootScope.edit$className = function (${instance}){
-		\$rootScope.errors.errorMessages=[];
-		DAO.get({appName: \$rootScope.appConfig.appName, token: \$rootScope.appConfig.token, instance:\$rootScope.${instance}, id: ${instance}.id, controller:'${instance}', action:'show'},
-		\$rootScope.loadingSite=true,
+	\$scope.edit$className = function (${instance}){
+		\$scope.errors.errorMessages=[];
+		DAO.get({appName: \$scope.appConfig.appName, token: \$scope.appConfig.token, instance:\$scope.${instance}, id: ${instance}.id, controller:'${instance}', action:'show'},
+		\$scope.loadingSite=true,
 		function (result) {
-			\$rootScope.${instance} = result;
-			\$rootScope.flags.save = true;
-			\$rootScope.loadingSite=false;
+			\$scope.${instance} = result;
+			\$scope.flags.save = true;
+			\$scope.loadingSite=false;
 			window.location.href = "#/${instance}/edit"
 		},
 		function (error) {
-			\$rootScope.errors.showErrors = true;
-			\$rootScope.errors.showServerError = true;
-			\$rootScope.errors.errorMessages.push('Error: '+error.status+' '+error.data);
-			\$rootScope.loadingSite=false;
+			\$scope.errors.showErrors = true;
+			\$scope.errors.showServerError = true;
+			\$scope.errors.errorMessages.push('Error: '+error.status+' '+error.data);
+			\$scope.loadingSite=false;
 		});
 	}
 
-	\$rootScope.confirmDelete$className = function () {
-		\$rootScope.errors.errorMessages=[];
-		DAO.delete({appName: \$rootScope.appConfig.appName, token: \$rootScope.appConfig.token, instance:\$rootScope.${instance}, id: \$rootScope.${instance}.id, controller:'${instance}', action:'delete'},
-		\$rootScope.loadingSite=true,
+	\$scope.confirmDelete$className = function () {
+		\$scope.errors.errorMessages=[];
+		DAO.delete({appName: \$scope.appConfig.appName, token: \$scope.appConfig.token, instance:\$scope.${instance}, id: \$scope.${instance}.id, controller:'${instance}', action:'delete'},
+		\$scope.loadingSite=true,
 		function (result) {
-			//\$rootScope.${instance}s = result;
-			\$rootScope.flags.save = true;
-			\$rootScope.loadingSite=false;
+			//\$scope.${instance}s = result;
+			\$scope.flags.save = true;
+			\$scope.loadingSite=false;
 			window.location.href = "#/${instance}/list"
 		},
 		function (error) {
-			\$rootScope.errors.showErrors = true;
-			\$rootScope.errors.showServerError = true;
-			\$rootScope.errors.errorMessages.push(''+error.status+' '+error.data);
-			\$rootScope.loadingSite=false;
+			\$scope.errors.showErrors = true;
+			\$scope.errors.showServerError = true;
+			\$scope.errors.errorMessages.push(''+error.status+' '+error.data);
+			\$scope.loadingSite=false;
 		});
 	}
 }

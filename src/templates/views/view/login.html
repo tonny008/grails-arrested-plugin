@@ -3,18 +3,15 @@
 		<strong></strong> <span ng-bind="error"></span>
 	</div>
 </div>
-<div data-ng-controller="UserCtrl"  data-ng-hide="appConfig.token!=''">
-<g:set var="clang" value="${session.'org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE' ?: org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).toString().substring(0,2)}"/>
-			
+<div data-ng-controller="UserCtrl"  data-ng-hide="appConfig.token!=''">		
 <div class="container" >
     <div class="row">
         <div class="col-md-6 col-md-offset-2" >
             <div class="panel panel-default">
                 <div class="panel-body">
-                
+               <g:set var="lang" value="${session.'org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE' ?: org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).toString().substring(0,2)}"/>			
           		<nav id="Navbar" class="navbar  navbar-inverse" role="navigation" >
 				<ul class="nav navbar-nav">							
-				<g:set var="lang" value="${session.'org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE' ?: org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).toString().substring(0,2)}"/>			
 				<li class="dropdown controller">
    					<a class="dropdown-toggle" role="button" data-toggle="dropdown" data-target="#">
 					${lang.toString()}

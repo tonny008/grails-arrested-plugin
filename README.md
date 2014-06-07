@@ -9,7 +9,7 @@ AngularJs + RESTful = Arrested
 # Installation:
 
 Add plugin Dependency in BuildConfig.groovy :
->compile ":arrested:1.28"
+>compile ":arrested:1.29"
 
 ## Installation information warning
 
@@ -137,6 +137,9 @@ Please refer to [supported i18n files](https://github.com/vahidhedayati/testinga
 ### Version info:
 
 ```
+1.29 :	Bug found with getAll$domainClass, required for select boxes produced when there is dependencies.
+		renamed all $rootScope calls within created Ctrl files for domainClasses to $scope. 
+		
 1.28 :	Further tidy up of arrestedInstaller, removed duplicate css/js files and used one set, 
 		css parsed for resources. proper details on how to use i18n now provided, the files copied to 
 		user's project folder. override function provided to add additional i18n support from users

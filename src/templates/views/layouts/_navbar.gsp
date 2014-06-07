@@ -1,7 +1,6 @@
+
 <nav id="Navbar" class="navbar navbar-fixed-top navbar-inverse" role="navigation" data-ng-show="appConfig.token!=''">
 		<div class="container-fluid" data-ng-controller="UserCtrl" >
-	<g:set var="lang" value="\${session.'org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE' ?: org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).toString().substring(0,2)}"/>
-	
 	    <div class="navbar-header">
 			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
         		<span class="sr-only">Toggle navigation</span>
@@ -23,10 +22,8 @@
          		</a>
          		</div>
 			</li>
-			
          </ul>
          <ul  class="nav navbar-nav navbar-right" >
-         
 	       	<li  class="dropdown controller">
 				<a class="dropdown-toggle" role="button" data-toggle="dropdown">
 					<span id="userMessage">
@@ -53,9 +50,6 @@
 					<span class="glyphicon glyphicon-log-out"></span> <g:message code="security.signoff.label" default="Sign Off"/>
 				</a>
 			</li>
-			
-		
-			
 		</ul>
 		</div>
 	</div>

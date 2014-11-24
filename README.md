@@ -9,11 +9,11 @@ AngularJs + RESTful = Arrested
 # Installation:
 
 Add plugin Dependency in BuildConfig.groovy :
->compile ":arrested:1.29"
+>compile ":arrested:1.37"
 
 ## Installation information warning
 
-We recommend you create a new project to install this plugin into, if you have an existing project be warning files such as index.gsp main.gsp i18n messages.properties messages_de.properties are overwritten. Lots of new files are added to this project.Please ensure you have backed up the project if it is an existing one.
+We recommend you create a new project to install this plugin into, if you have an existing project be warning files such as index.gsp main.gsp i18n messages.properties messages_de.properties, grails-app/conf/spring/resources.groovy are overwritten. Lots of new files are added to this project.Please ensure you have backed up the project if it is an existing one.
 
 
 # Getting Started
@@ -60,45 +60,56 @@ To generate views for your newly created REST controller run:
 
 # How to Integrate
 
+#### It is important and a must that you create the ArrestedRole required by signup.role config  
+
 ### Creating a user at startup:
 
 
 
 BootStrap:
 ```groovy
-import org.apache.shiro.crypto.hash.Sha256Hash
-
-import arrested.ArrestedToken
+import arrested.ArrestedRole
 import arrested.ArrestedUser
+import org.apache.shiro.crypto.SecureRandomNumberGenerator
+import org.apache.shiro.crypto.hash.Sha512Hash
 
 class BootStrap {
 
-   def init = { servletContext ->
-	ArrestedUser user
-		ArrestedToken token
+    def shiroSecurityService
+    def init = { servletContext ->
+		def adminRole = new ArrestedRole(name: "Administrator")
+		adminRole.addToPermissions("*:*")
+		adminRole.save()
+		adminRole = ArrestedRole.findByName("Administrator")
 		
-		user = new ArrestedUser(
-			username: "admin",
-			passwordHash: new Sha256Hash("admin").toHex(),
-			dateCreated: new Date()
-		).save()
+		def passwordSalt = new SecureRandomNumberGenerator().nextBytes().getBytes()
+		def admin = new ArrestedUser(
+			username:"admin",
+			passwordHash: new Sha512Hash("password",passwordSalt,1024).toBase64(),
+			passwordSalt:passwordSalt,
+			dateCreated:new Date())
+		admin.addToRoles(adminRole)
+		admin.save(flush:true, failOnError:true)
 		
-		 //Create tokens for users
-		token = new ArrestedToken(
-			token: 'token',
-			valid: true,
-			owner: user.id
-		).save(flush: true)
-		user.setToken(token.id)
-		user.save()
-		
-    
     }
     def destroy = {
     }
 }
+
 ```
 
+
+##Config.groovy requirements for key 'arrested':
+```
+arrested.dateFormat="yyyy-MM-dd'T'HH:mm:ss"
+
+
+arrested.signup.role='Administrator' //if not defined Administrator will be default value
+
+arrested.supported.i18n=['en','de','es_PE','es']
+// For all locales simply enable this:
+arrested.supported.i18n=['*']
+```
 
 
 Configuration completed
@@ -134,9 +145,70 @@ Please refer to [supported i18n files](https://github.com/vahidhedayati/testinga
  
 [manually creating locales entries](https://github.com/vahidhedayati/testingarrested/wiki/Manually-defining-locales)
 
+[bash automated app creation](https://github.com/vahidhedayati/testingarrested/wiki/automated---app-creator---bash-script)
+
+
+###### User signup role
+This is the default  role you wish to be used as part of the sign up
+  
+Config.groovy :
+  
+```
+arrested.signup.role='Administrator' //if not defined Administrator will be default value
+```
+
+
+
 ### Version info:
 
 ```
+1.37 :	Moved spring/resources.groovy withing plugin src/configuration, 
+		appended _ArrestedInternal and create-arrested-app scripts to now call createBean
+		Removed howto update bean from documentation and appended it to warning line at the top.
+		Upgraded plugin to work in grails-2.4.2 had to enable maven repo for Shiro to work.
+		
+1.36 :  Sasikumar Ganesan 	Support the correct date format
+
+1.35 :  https://github.com/PureSrc/grails-arrested-plugin/issues/37
+
+	Sasikumar Ganesan 	Support the Shiro access control 	1e4c3d3
+	Sasikumar Ganesan 	Support Role & Permission based access control 	f4e922e
+	Sasikumar Ganesan 	Support the basic role based menu display 	ddc74b1
+	Sasikumar Ganesan 	Support date selection with angular-strap 	2924950
+	Sasikumar Ganesan 	Changes to support inList items 	7266aaf
+	Sasikumar Ganesan 	Alter the script to include roles 	af81cbf
+	Sasikumar Ganesan 	Add support for roles 	7f9b521
+	Sasikumar Ganesan 	Add the missing imports 	ca83754
+	Sasikumar Ganesan 	Fix the script errors 	9238535
+	Sasikumar Ganesan 	Remove the unecessary printlns 	a76164a
+	Sasikumar Ganesan 	Correct relationship to be mapped for roles 	5c297a0
+	Sasikumar Ganesan 	Support for inlist and cookies 	398be44
+	Sasikumar Ganesan 	Support for Shiro security 	e58c7a1
+	Sasikumar Ganesan 	Fix the shiro security service initialization and other errors in the… … 	683ed29
+	Sasikumar Ganesan 	Support the angular-strap and the templates for the same 	03f25e1
+	Sasikumar Ganesan 	Change the Readme to support the bootstrap with Shiro 	9914f4c
+	Sasikumar Ganesan 	Controller failed on creating token fixed 	d183ff0 
+
+
+1.34 : https://github.com/PureSrc/grails-arrested-plugin/issues/38
+
+1.33 : 	Issue with date Fields fixed, additional work to edit.html and a new private setDate function set in Controller.groovy
+	User can define their own date format in their application's Config.groovy, by default:
+	arrested.dateFormat='dd/MM/yyyy'
+
+1.32 :	Issue with edit https://github.com/PureSrc/grails-arrested-plugin/issues/34, related to $scope vs $rootScope 
+	in Controller.js
+
+1.31 : 	Issue with definition name starting with get caused application not to appear in grails pre 2.4 from :
+		1.29 - 1.30. Issue now fixed getLocale renamed to userLocation. assetServices created and pulled into
+		services. DashboardController created and separated from userController. ng-table pages missing added 
+		to web-app folder of grails apps. Tested on pre 2.4 and 2.4 grails to ensure it works on both types.	
+
+1.30 : 	Service added to arrestedDirectives.js to get userLocale from within grails. 
+ 		Also clears all angular template/cacheFactory caches and set angular to load up new locale. 
+ 		Plain dashboard added. Locale settings outside login do a clean redirect back to app. 
+ 		Within application relies on above technique to work within angular.
+ 	
 1.29 :	Bug found with getAll$domainClass, required for select boxes produced when there is dependencies.
 		renamed all $rootScope calls within created Ctrl files for domainClasses to $scope. 
 		

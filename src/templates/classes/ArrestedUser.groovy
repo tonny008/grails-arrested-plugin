@@ -3,6 +3,7 @@
 class ArrestedUser {
     String username
     String passwordHash
+	byte[] passwordSalt
     Date dateCreated
     Date lastUpdated
     Long token
@@ -15,7 +16,7 @@ class ArrestedUser {
         token nullable: true
     }
 	
-	//static hasMany = [roles: ArrestedRole, permissions: String]
+	static hasMany = [roles: ArrestedRole, permissions: String]
 	
     def toObject(){
         return [id: id,

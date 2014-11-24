@@ -15,6 +15,7 @@ modules = {
 	angularControllers {
 		dependsOn 'ngRoute'
 		resource url:'js/arrestedDirectives.js'
+		resource url:'js/dashboardCtrl.js'
 		resource url:'js/userCtrl.js'
 		resource url:'js/clockCtrl.js'
 $customAngularControllers
@@ -32,10 +33,14 @@ $customAngularControllers
     }
 
     angularService {
-        dependsOn 'angularResource', 'angularNgTable'
-        resource url: 'js/services.js'
+        dependsOn 'angularResource', 'angularNgTable', 'angularStrap', 'angularCookies','arrestedServices'
+        resource url: 'js/services.js'	
     }
-
+	
+	arrestedServices {
+		resource url:'js/arrestedServices.js'
+	}
+	
     angularResource {
         dependsOn 'angular'
         resource url:'js/angular-resource/angular-resource.min.js'
@@ -46,6 +51,14 @@ $customAngularControllers
 		resource url:'css/ng-table.css'
 	}
 	
+	angularStrap { 
+		resource url:'js/angular-strap/angular-strap.js'
+	}
+	
+	angularCookies {
+		resource url:'js/angular-cookies/angular-cookies.js'
+	}
+
     angular {
         dependsOn 'jQuery'
         resource url:'js/angular/angular.js'

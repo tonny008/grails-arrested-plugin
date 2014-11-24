@@ -6,7 +6,7 @@
 		</div>
 	</div>
     
-
+   <% smallClassName = className?.toLowerCase() %>
     <div class="container" data-ng-controller="${className}Ctrl" >
         <div class="small-12 columns" >
             <div class="panel panel-default">
@@ -37,7 +37,9 @@
 	    	renderBooleanEditor(domainClass, property)
 	    } else if (property.type && Number.isAssignableFrom(property.type) || (property.type?.isPrimitive() && property.type != boolean)) {
 	    	renderNumberEditor(domainClass, property)
-	    } else if (property.type == String) {
+	    } else if (property.type == String && cp."${property.name}".inList) {
+	    	renderConstraintsAsList(domainClass,property)
+	    } else if (property.type == String ) {
 	    	renderStringEditor(domainClass, property)
 	    } else if (property.type == Date || property.type == java.sql.Date || property.type == java.sql.Time || property.type == Calendar) {
 	    	renderDateEditor(domainClass, property)
@@ -92,7 +94,7 @@
     				sb << '<input type="url"'
     			} else if (cp."${property.name}".email) {
     				sb << '<input type="email"'
-    			} else {
+    			} else{
     				sb << '<input type="text"'
     			}
     			sb << ' class="form-control" name="' << property.name << '"'
@@ -222,6 +224,27 @@
     	sb as String
     }
 
+	private renderConstraintsAsList(domainClass,property) {
+	    if (!cp) { 		
+	    	return ""; 
+	    }	    
+		    def sb = new StringBuilder()
+		    sb << '<select bs-select'
+		    // id is "x" and name is "x.id" as the label will have for="x" and "." in an id will confuse CSS
+		    sb << ' id="' << property.name << '"'
+		    sb << ' name="' << property.name << '"'
+		    sb << " data-ng-model='${domainTitle}.${property.name}'"
+		    sb << ' data-ng-controller="'<< className <<'Ctrl"'
+		    sb << ' ng-options="c for c in ' << property.name.toLowerCase() << 's"'
+		    if (isRequired()) {
+		    	sb << ' required=""'
+		    }	
+		    sb << ' class="many-to-one"'
+		    sb << renderNoSelection(property)
+		    sb << '/>'
+		    sb as String
+    }
+
     private renderManyToOne(domainClass,property) {
 	    if (property.association) {
 		    if (property.type.name.indexOf('.')>-1) {
@@ -287,12 +310,12 @@
     private renderDateEditor(domainClass, property) {
 	    def precision = (property.type == Date || property.type == java.sql.Date || property.type == Calendar) ? "day" : "minute";
 	    if (!cp) {
-	    	return "<input type=\"date\" name=\"${property.name}\" precision=\"${precision}\" data-ng-model='${domainTitle}.${property.name}' />"
+	    	return "<input type=\"date\" name=\"${property.name}\" bs-datepicker data-date-format=\"dd/MM/yyyy\" data-ng-model='${domainTitle}.${property.name}' />"
 	    } else {
 	    	if (!cp."${property.name}".editable) {
 	    		return "\${${domainInstance}?.${property.name}?.toString()}"
 	    	} else {
-	    		def sb = new StringBuilder("<input type=\"date\" name=\"${property.name}\" ")
+	    		def sb = new StringBuilder("<input type=\"date\" name=\"${property.name}\" bs-datepicker data-date-format=\"dd/MM/yyyy\" ")
 	    		if (cp."${property.name}".format) { 
 	    			sb << "format=\"${cp."${property.name}".format}\" "
 	    		}	
@@ -302,8 +325,8 @@
 	    		cp.attributes.each { k, v ->
 	    			sb << "${k}=\"${v}\" "
 	    		}
-	    		if (!cp.attributes.precision) {
-	    			sb << "precision=\"${precision}\" "
+	    		if (!cp."${property.name}".attributes.precision) {
+	    			sb << "precision=\"${cp."${property.name}".attributes.precision}\" "
 	    		}
 	    		sb << "data-ng-model='${domainTitle}.${property.name}' />"
 	    		return sb.toString()

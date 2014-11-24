@@ -6,9 +6,10 @@ class ArrestedRole {
 	static final GUEST = "Guest"
 	
     String name
-	static hasMany= [ permissions: String]
+	static hasMany = [ users: ArrestedUser, permissions: String ]
+	static belongsTo = ArrestedUser
     static constraints = {
-        name blank: false, unique: true
+        name blank: false, unique: true, nullable:false
     }
 	
 	String toString() {
@@ -16,7 +17,7 @@ class ArrestedRole {
 	}
 
 	boolean equals(Object o) {
-		if(o instanceof Role) {
+		if(o instanceof ArrestedRole) {
 			return this.name == o.name
 		}
 		return false

@@ -24,9 +24,7 @@
     				<button ng-click="tableParams.sorting({})" class="btn btn-default">Clear sorting</button> 
 					<div loading-container="tableParams.settings().\$loading">
                     <table class="table"  ng-table="tableParams" show-filter="true">
-                     
-                        <tr  data-ng-repeat="instance in ${domainInstance}s"   data-ng-click="edit${className}(instance)">
-                        	
+                        <tr  data-ng-repeat="instance in ${domainInstance}s"  data-ng-click="edit${className}(instance)">
                             <%  props.eachWithIndex { p,index -> %>
                             	<% if (index==0) { %>
                              		<td data-sortable="'${p.name}'" filter="{'${p.name}':'text'}"  data-title="'${p.name}'"  >
@@ -37,7 +35,6 @@
                             </td>
                             <%  } %>
                         </tr>
-                      
                     </table>
                     </div>
                     

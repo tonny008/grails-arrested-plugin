@@ -1,24 +1,25 @@
 'use strict';
-function $contName(DAO, \$scope, \$filter, ngTableParams)
+function $contName(DAO, \$rootScope, \$scope, \$filter, ngTableParams)
 {
-	if (\$scope.appConfig) {
-		if (!\$scope.appConfig.token!='') {
+	if (\$rootScope.appConfig) {
+		if (!\$rootScope.appConfig.token!='') {
 			window.location.href = "#/login"
 		}
 	}
 
-	\$scope.flags = {save: false};
-	\$scope.errors = {loadingSite: false, showErrors: false, showServerError: false,errorMessages:[]};
-	\$scope.errorValidation = function(){
-	   \$scope.errors = {loadingSite: true};
+	\$rootScope.flags = {save: false};
+	\$rootScope.errors = {loadingSite: false, showErrors: false, showServerError: false,errorMessages:[]};
+	\$rootScope.errorValidation = function(){
+	   \$rootScope.errors = {loadingSite: true};
 	};
 	
-	if(!\$scope.${instance}){
-		\$scope.filter = ""
-		\$scope.${instance}s = [];
-		\$scope.${instance} = {};
+	if(!\$rootScope.${instance}){
+		\$rootScope.filter = ""
+		\$rootScope.${instance}s = [];
+		\$rootScope.${instance} = {};
+		${constraintList}
 	}
-
+	
 	\$scope.tableParams = new ngTableParams({
         page: 1,            // show first page
         count: 10,           // count per page
@@ -48,115 +49,115 @@ function $contName(DAO, \$scope, \$filter, ngTableParams)
     });
 	
 	//Required for dependency lookup 
-	\$scope.getAll$className = function () {
+	\$rootScope.getAll$className = function () {
 		//get all
-		\$scope.errors.errorMessages=[];
-		DAO.query({appName: \$scope.appConfig.appName, token: \$scope.appConfig.token, controller: '${instance}', action: 'list'},
-		\$scope.loadingSite=true,
+		\$rootScope.errors.errorMessages=[];
+		DAO.query({appName: \$rootScope.appConfig.appName, token: \$rootScope.appConfig.token, controller: '${instance}', action: 'list'},
+		\$rootScope.loadingSite=true,
 		function (result) {
-			\$scope.${instance}s = result;
-			\$scope.loadingSite=false;   
+			\$rootScope.${instance}s = result;
+			\$rootScope.loadingSite=false;   
 			
 		},
 		function (error) {
-			\$scope.errors.showErrors = true;
-			\$scope.errors.showServerError = true;
-			\$scope.errors.errorMessages.push(''+error.status+' '+error.data);
-			\$scope.loadingSite=false;
+			\$rootScope.errors.showErrors = true;
+			\$rootScope.errors.showServerError = true;
+			\$rootScope.errors.errorMessages.push(''+error.status+' '+error.data);
+			\$rootScope.loadingSite=false;
 		});
 	};
 	 
 	
-	\$scope.new$className = function () {
-		\$scope.loadingSite=true;
-		\$scope.${instance} = {};
-		\$scope.loadingSite=false;
+	\$rootScope.new$className = function () {
+		\$rootScope.loadingSite=true;
+		\$rootScope.${instance} = {};
+		\$rootScope.loadingSite=false;
 		window.location.href = "#/${instance}/create"		
 	}
 
-	\$scope.manualSave$className = function () {
-		\$scope.loadingSite=true;
-		\$scope.flags.save = false;
-		if (\$scope.${instance}.id == undefined)
+	\$rootScope.manualSave$className = function () {
+		\$rootScope.loadingSite=true;
+		\$rootScope.flags.save = false;
+		if (\$rootScope.${instance}.id == undefined)
 		{
-			\$scope.save$className();
+			\$rootScope.save$className();
 		}
 		else
 		{
-			\$scope.update$className();
+			\$rootScope.update$className();
 		}
 	}
 
-	\$scope.save$className = function () {
-		\$scope.errors.errorMessages=[];
-		DAO.save({appName: \$scope.appConfig.appName, token: \$scope.appConfig.token, instance:\$scope.${instance}, controller:'${instance}', action:'save'},
+	\$rootScope.save$className = function () {
+		\$rootScope.errors.errorMessages=[];
+		DAO.save({appName: \$rootScope.appConfig.appName, token: \$rootScope.appConfig.token, instance:\$rootScope.${instance}, controller:'${instance}', action:'save'},
 		function (result) {
-			\$scope.${instance} = result;
-			\$scope.flags.save = true;
-			\$scope.loadingSite=false;
+			\$rootScope.${instance} = result;
+			\$rootScope.flags.save = true;
+			\$rootScope.loadingSite=false;
 
 		},
 		function (error) {
-			\$scope.flags.save = false;
-			\$scope.errors.showErrors = true;
-			\$scope.errors.showServerError = true;
-			\$scope.errors.errorMessages.push(''+error.status+' '+error.data);
-			\$scope.loadingSite=false;   
+			\$rootScope.flags.save = false;
+			\$rootScope.errors.showErrors = true;
+			\$rootScope.errors.showServerError = true;
+			\$rootScope.errors.errorMessages.push(''+error.status+' '+error.data);
+			\$rootScope.loadingSite=false;   
 		});
 	}
 
-	\$scope.update$className = function () {
-		\$scope.errors.errorMessages=[];
-		DAO.update({appName: \$scope.appConfig.appName, token: \$scope.appConfig.token, instance:\$scope.${instance}, controller:'${instance}', action:'update'},
-		\$scope.loadingSite=true,
+	\$rootScope.update$className = function () {
+		\$rootScope.errors.errorMessages=[];
+		DAO.update({appName: \$rootScope.appConfig.appName, token: \$rootScope.appConfig.token, instance:\$rootScope.${instance}, controller:'${instance}', action:'update'},
+		\$rootScope.loadingSite=true,
 		function (result) {
-			\$scope.${instance}s = result;
-			\$scope.flags.save = true;
-			\$scope.loadingSite=false;
+			\$rootScope.${instance}s = result;
+			\$rootScope.flags.save = true;
+			\$rootScope.loadingSite=false;
 			window.location.href = "#/${instance}/list"
 		},
 		function (error) {
-			\$scope.flags.save = false;
-			\$scope.errors.showErrors = true;
-			\$scope.errors.showServerError = true;
-			\$scope.errors.errorMessages.push(''+error.status+' '+error.data);
-			\$scope.loadingSite=false;
+			\$rootScope.flags.save = false;
+			\$rootScope.errors.showErrors = true;
+			\$rootScope.errors.showServerError = true;
+			\$rootScope.errors.errorMessages.push(''+error.status+' '+error.data);
+			\$rootScope.loadingSite=false;
 		});
 	}
 
-	\$scope.edit$className = function (${instance}){
-		\$scope.errors.errorMessages=[];
-		DAO.get({appName: \$scope.appConfig.appName, token: \$scope.appConfig.token, instance:\$scope.${instance}, id: ${instance}.id, controller:'${instance}', action:'show'},
-		\$scope.loadingSite=true,
+	\$rootScope.edit$className = function (${instance}){
+		\$rootScope.errors.errorMessages=[];
+		DAO.get({appName: \$rootScope.appConfig.appName, token: \$rootScope.appConfig.token, instance:\$rootScope.${instance}, id: ${instance}.id, controller:'${instance}', action:'show'},
+		\$rootScope.loadingSite=true,
 		function (result) {
-			\$scope.${instance} = result;
-			\$scope.flags.save = true;
-			\$scope.loadingSite=false;
+			\$rootScope.${instance} = result;
+			\$rootScope.flags.save = true;
+			\$rootScope.loadingSite=false;
 			window.location.href = "#/${instance}/edit"
 		},
 		function (error) {
-			\$scope.errors.showErrors = true;
-			\$scope.errors.showServerError = true;
-			\$scope.errors.errorMessages.push('Error: '+error.status+' '+error.data);
-			\$scope.loadingSite=false;
+			\$rootScope.errors.showErrors = true;
+			\$rootScope.errors.showServerError = true;
+			\$rootScope.errors.errorMessages.push('Error: '+error.status+' '+error.data);
+			\$rootScope.loadingSite=false;
 		});
 	}
 
-	\$scope.confirmDelete$className = function () {
-		\$scope.errors.errorMessages=[];
-		DAO.delete({appName: \$scope.appConfig.appName, token: \$scope.appConfig.token, instance:\$scope.${instance}, id: \$scope.${instance}.id, controller:'${instance}', action:'delete'},
-		\$scope.loadingSite=true,
+	\$rootScope.confirmDelete$className = function () {
+		\$rootScope.errors.errorMessages=[];
+		DAO.delete({appName: \$rootScope.appConfig.appName, token: \$rootScope.appConfig.token, instance:\$rootScope.${instance}, id: \$rootScope.${instance}.id, controller:'${instance}', action:'delete'},
+		\$rootScope.loadingSite=true,
 		function (result) {
-			//\$scope.${instance}s = result;
-			\$scope.flags.save = true;
-			\$scope.loadingSite=false;
+			//\$rootScope.${instance}s = result;
+			\$rootScope.flags.save = true;
+			\$rootScope.loadingSite=false;
 			window.location.href = "#/${instance}/list"
 		},
 		function (error) {
-			\$scope.errors.showErrors = true;
-			\$scope.errors.showServerError = true;
-			\$scope.errors.errorMessages.push(''+error.status+' '+error.data);
-			\$scope.loadingSite=false;
+			\$rootScope.errors.showErrors = true;
+			\$rootScope.errors.showServerError = true;
+			\$rootScope.errors.errorMessages.push(''+error.status+' '+error.data);
+			\$rootScope.loadingSite=false;
 		});
 	}
 }

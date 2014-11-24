@@ -2,8 +2,10 @@
 import grails.converters.JSON
 import grails.converters.XML
 import arrested.ArrestedController
-import arrested.ArrestedController
-import org.apache.shiro.crypto.hash.Sha256Hash
+import org.apache.shiro.crypto.SecureRandomNumberGenerator
+import org.apache.shiro.crypto.hash.Sha512Hash
+import arrested.ArrestedRole
+
 
 class ArrestedUserController extends ArrestedController {
 
@@ -74,8 +76,25 @@ class ArrestedUserController extends ArrestedController {
 				if (ArrestedUser.findByUsername(username)) {
 					renderConflict("${message(code: 'default.username.used.label', default: 'Username already in use')}")
 				} else {
-					ArrestedUser user = new ArrestedUser( username:username, passwordHash: new Sha256Hash(passwordHash).toHex() )
-					user.save(flush: true)
+				
+				
+					def definedRole=config.role ?: 'Administrator'
+					def userRole = ArrestedRole.findByName(definedRole)
+					if (!userRole) {
+						userRole = new ArrestedRole(name: definedRole)
+						userRole.addToPermissions("*:*")
+						userRole.save()
+					}	
+				
+					def passwordSalt = new SecureRandomNumberGenerator().nextBytes().getBytes()
+					def user = new ArrestedUser( username:"admin", passwordHash: new Sha512Hash("password", passwordSalt,1024).toBase64(), passwordSalt:passwordSalt, dateCreated:new Date())
+				
+					user.addToRoles(userRole)
+					user.save(flush:true, failOnError:true)
+				
+				
+					//ArrestedUser user = new ArrestedUser( username:username, passwordHash: new Sha256Hash(passwordHash).toHex() )
+					//user.save(flush: true)
 
 					ArrestedToken token = new ArrestedToken( token: 'token', valid: true, owner: user.id )
 					token.save(flush: true)
@@ -166,9 +185,13 @@ class ArrestedUserController extends ArrestedController {
 				ArrestedToken arrestedToken = ArrestedToken.findByToken(token)
 				if(arrestedToken){
 					ArrestedUser user = ArrestedUser.findByToken(arrestedToken.id)
+					
 					if(user){
 							instance.username=user.username
-							instance.passwordHash=new Sha256Hash(instance.passwordHash).toHex()
+							def passwordSalt = new SecureRandomNumberGenerator().nextBytes().getBytes()
+							//instance.passwordHash=new Sha256Hash(instance.passwordHash).toHex()
+							instance.passwordHash = new Sha512Hash("password", passwordSalt,1024).toBase64()
+							instance.passwordSalt = passwordSalt
 							user.properties = instance
 							if(user.save(flush: true)){
 								withFormat {
@@ -218,7 +241,11 @@ class ArrestedUserController extends ArrestedController {
                         if (user.username != instance.username && ArrestedUser.findByUsername(instance.username as String)){
                             renderConflict("${message(code: 'default.username.used.label', default: 'Username already in use')}")
                         } else {
-							instance.passwordHash=new Sha256Hash(instance.passwordHash).toHex()
+							//instance.passwordHash=new Sha256Hash(instance.passwordHash).toHex()
+							def passwordSalt = new SecureRandomNumberGenerator().nextBytes().getBytes()
+							//instance.passwordHash=new Sha256Hash(instance.passwordHash).toHex()
+							instance.passwordHash = new Sha512Hash("password", passwordSalt,1024).toBase64()
+							instance.passwordSalt = passwordSalt
                             user.properties = instance
                             if(user.save(flush: true)){
                                 withFormat {
@@ -285,4 +312,8 @@ class ArrestedUserController extends ArrestedController {
             renderMissingParam("${message(code: 'default.token.missing.label', default: 'Token missing')}")
         }
     }
+	
+	def getConfig() {
+		grailsApplication.config.arrested
+	}
 }

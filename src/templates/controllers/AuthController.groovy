@@ -4,10 +4,16 @@ import grails.converters.JSON
 import grails.converters.XML
 import arrested.ArrestedController
 import org.apache.shiro.crypto.hash.Sha256Hash
+import org.apache.shiro.authc.AuthenticationException
+import org.apache.shiro.authc.UsernamePasswordToken
+import org.apache.shiro.web.util.SavedRequest
+import org.apache.shiro.web.util.WebUtils
+import org.apache.shiro.SecurityUtils
 
 class AuthController extends ArrestedController {
 	
     static allowedMethods = [login: "POST", logout: "GET"]
+	def shiroSecurityManager
 	
 	def showUpdatePassword() {
 		withFormat {
@@ -49,13 +55,22 @@ class AuthController extends ArrestedController {
 		renderSuccess(lang,"${message(code: 'default.lang.changed.label', default: 'Language changed')}")
 	}
 	
-	def getLocale() { 
-		def clocale=['lang': session.'org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE' ?: org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).toString().substring(0,2)]
-		render clocale as JSON
+	def userLocation() { 
+	  def clocale=['lang':session.'org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE' ?: org.springframework.web.servlet.support.RequestContextUtils.getLocale(request).toString().substring(0,2)]
+	  withFormat{
+	    json  {
+	      render clocale as JSON
+        }
+	  }
 	}
 	
+	
 	def dashboard() { 
-		render ""		
+		withFormat {
+			html {
+				render(view: "dashboard")
+			}
+		}
 	}
 	
 	def showUpdated() {
@@ -103,7 +118,46 @@ class AuthController extends ArrestedController {
 		}
 	}
 		
-    def login(String username, String passwordHash){
+	def login(String username, String passwordHash){ 
+		if(username){ 
+			if(passwordHash){ 
+				def authToken = new UsernamePasswordToken(username, passwordHash as String) 
+				try { 
+					SecurityUtils.subject.login(authToken) 
+					Date valid = new Date() 
+					valid + 1 
+					def user = ArrestedUser.findByUsername(username) 
+					ArrestedToken token = ArrestedToken.get(user.token) 
+					if(!token){ 
+						user.setToken(new ArrestedToken( token: UUID.randomUUID().toString(), valid: true, owner: user.id).save(flush: true).id) 
+						user.save(flush: true) 
+					}else if(token.lastUpdated.time > valid.time || !token.valid){ 
+						token.token = UUID.randomUUID() 
+						token.valid = true token.save(flush: true) 
+					} 
+					withFormat{ 
+						xml { 
+							render user.toObject() as XML 
+						} 
+						json { 
+							render user.toObject() as JSON 
+						} 
+					}
+				} catch (AuthenticationException ex){ 
+					// Authentication failed, so display the appropriate message 
+					// on the login page. 
+					log.info "Authentication failure for user '${params.username}'." 
+					renderConflict("${message(code: 'default.usernamepassword.invalid.label', default: 'Username and/or password incorrect')}") 
+				} 
+			} else{ 
+			renderMissingParam("${message(code: 'default.password.missing.label', default: 'PasswordHash missing')}") 
+			} 
+		} else{ 
+		renderMissingParam("${message(code: 'default.username.missing.label', default: 'Username missing')}") 
+		} 
+	}
+	
+    def loginOld(String username, String passwordHash){
         if(username){
             if(passwordHash){
                 ArrestedUser user = ArrestedUser.findByUsername(username)

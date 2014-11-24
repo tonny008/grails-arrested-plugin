@@ -123,13 +123,37 @@ target(createToken: "Create a token class") {
 
 target(createUser: "Create a user class") {
     depends(compile)
-    def (pkg, prefix) = parsePrefix1()
+    def (pkg, prefix) = parsePrefix1()	
     installTemplateEx("ArrestedUser.groovy", "grails-app/domain${packageToPath(pkg)}", "classes", "ArrestedUser.groovy") {
         ant.replace(file: artefactFile) {
             ant.replacefilter(token: "@package.line@", value: (pkg ? "package ${pkg}\n\n" : ""))
         }
     }
     depends(compile)
+}
+
+target(createRole: "Create a role class") {
+	
+	depends(compile)
+	def (pkg, prefix) = parsePrefix1()	
+	installTemplateEx("ArrestedRole.groovy", "grails-app/domain${packageToPath(pkg)}", "classes", "ArrestedRole.groovy") {
+		ant.replace(file: artefactFile) {
+			ant.replacefilter(token: "@package.line@", value: (pkg ? "package ${pkg}\n\n" : ""))
+		}
+	}
+	depends(compile)
+}
+
+target(createRealm: "Create a DB Realm class") {
+	
+	depends(compile)
+	def (pkg, prefix) = parsePrefix1()
+	installTemplateEx("DbRealm.groovy", "grails-app/realms${packageToPath(pkg)}", "realms/arrested", "DbRealm.groovy") {
+		ant.replace(file: artefactFile) {
+			ant.replacefilter(token: "@package.line@", value: (pkg ? "package ${pkg}\n\n" : ""))
+		}
+	}
+	depends(compile)
 }
 
 target(createUserController: "Create a user class") {
@@ -202,6 +226,25 @@ target(createFilter: "Create a security filter") {
     }
     depends(compile)
 }
+
+target(createBean: "Create spring/resources.groovy") {
+	depends(compile)
+	def (pkg, prefix) = parsePrefix1()
+	def file="spring/resources.groovy"
+	def resourcesFile = "${basedir}/grails-app/conf/${file}"
+	if (!okToWrite(resourcesFile)) {
+		return
+	}
+	templateFile = "${arrestedPluginDir}/src/templates/configuration/${file}"
+	if (!new File(templateFile).exists()) {
+		ant.echo("[Arrested plugin] Error: src/templates/configuration/${file} does not exist!")
+		return
+	}
+	ant.copy(file: templateFile, tofile: resourcesFile, overwrite: true)
+	depends(compile)
+}
+
+
 target(updateUrl: "Updating the Url Mappings") {
     depends(compile)
     def (pkg, prefix) = parsePrefix()
@@ -292,12 +335,20 @@ target(createAngularIndex: "Create the angular file configuration") {
     configFile.withWriterAppend { BufferedWriter writer ->
         writer.writeLine "'use strict';"
         writer.writeLine "var " + shortname + " = angular.module('" + Metadata.current.'app.name' + "', ['services','ngRoute']);"
+		
+		writer.writeLine(shortname + ".config(function (\$datepickerProvider) {")
+		writer.writeLine("    angular.extend(\$datepickerProvider.defaults, {")
+		writer.writeLine("        dateFormat: 'dd-MM-yyyy',")
+		writer.writeLine("        modelDateFormat: \"yyyy-MM-ddTHH:mm:ss\"")
+		writer.writeLine("    })});")
+		
 		//writer.writeLine "var " + shortname + " = angular.module('" + Metadata.current.'app.name' + "', ['services','ngRoute']);"
         writer.writeLine shortname + ".config([\n" +
                 "    '\$routeProvider',\n" +
                 "    function(\$routeProvider) {\n" +
                 "        \$routeProvider."
-		//writer.writeLine "            when('/dashboard', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/dashboard', controller: 'UserCtrl', resolve: { lang: function(SessionService) {return SessionService.getLang()}}})."
+		//writer.writeLine "            when('/dashboard', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/dashboard', controller: 'UserCtrl', resolve: { myLang: function(LangService) {return LangService.getLang()}}})."
+		writer.writeLine "            when('/dashboard', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/dashboard', controller: 'UserCtrl'})."
         writer.writeLine "            when('/login', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showLogin', controller: 'UserCtrl'})."
 		writer.writeLine "            when('/signup', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showSignup', controller: 'UserCtrl'})."
 		writer.writeLine "            when('/updatepassword', {templateUrl: '/" + Metadata.current.'app.name' + "/auth/showUpdatePassword', controller: 'UserCtrl'})."
@@ -333,8 +384,12 @@ target(createAngularIndex: "Create the angular file configuration") {
 	 def cpathDirective=verifyGrailsVersion(appVersion, 'js', appName)
 	 def direc = createTemplate(engine, 'views/controllers/arrestedDirectives.js', addConf)
 	 writeToFile(cpathDirective+'/arrestedDirectives.js',direc.toString())
+	
+	 def arrestedServices = createTemplate(engine, 'views/controllers/arrestedServices.js', addConf)
+	 writeToFile(cpathDirective+'/arrestedServices.js',arrestedServices.toString())
+	 
     depends(compile)
-    println("index.js created")
+    println("index.js arrestedDirectives.js arrestedServices.js created")
 }
 
 target(createController: "Creates a standard controller") {
@@ -381,15 +436,26 @@ target(createController: "Creates a standard controller") {
 target(createJSController: "Creates a standard angular controller") {
     depends(compile,loadApp)
 	def engine = new SimpleTemplateEngine()
-    def (pkg, prefix) = parsePrefix()
+    def (pkg, prefix) = parsePrefix1()
     def className = prefix + "Ctrl"
 	def cpathController=verifyGrailsVersion(appVersion, 'js', 'custom-'+appName)
     def domainClasses = grailsApp.domainClasses
+	def constraintsList = "";
     domainClasses.each {
         domainClass ->
-            if (domainClass.getShortName() == prefix) {
+            if (domainClass.getShortName() == prefix) {	
+				def sb = new StringBuilder("")
+				domainClass.constrainedProperties?.each {key, value ->
+					if(domainClass.constrainedProperties[key].inList) {
+						sb.append("\$rootScope." + key + "s").append(
+							 " = [\"" + domainClass.constrainedProperties[key].inList.join("\",\"") + "\"];\n")
+					}
+				}
+				constraintsList = sb;
 				def addConf=[contName:className,className:prefix,
-					instance:domainClass.getPropertyName(),appName:appName]
+					instance:domainClass.getPropertyName(),appName:appName,
+					constraintList:constraintsList]
+				
 				def clsjs = createTemplate(engine, 'views/controllers/Controller.js', addConf)
 				writeToFile("${cpathController}/${className}.js",clsjs.toString())
             }
@@ -406,9 +472,15 @@ target(createAngularUser: "Create the angular user controller") {
 	localmkdir("$basedir/${cpathUser}")
 	def usrctl = createTemplate(engine, 'views/controllers/userController.js', addConf)
 	writeToFile("${cpathUser}/userCtrl.js",usrctl.toString())
+
+	def dashctl = createTemplate(engine, 'views/controllers/dashboardController.js', addConf)
+        writeToFile("${cpathUser}/dashboardCtrl.js",dashctl.toString())
+
+
 	
 	installTemplateEx("clockCtrl.js", cpathUser, "views/controllers", "clockController.js") {}
     installTemplateEx("login.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "login.html") {}
+	installTemplateEx("dashboard.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "dashboard.html") {}
 	installTemplateEx("signup.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "signup.html") {}
 	installTemplateEx("update.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "update.html") {}
 	installTemplateEx("update-username.gsp", "grails-app/views/${packageToPath(pkg)}auth", "views/view", "update-username.html") {}
@@ -438,7 +510,29 @@ target(updateLayout: "Update the layout view") {
 		}
 	}
 	
+	String ngtblLoc='src/templates/views/web-app/ng-table'
+	def ngTblView="web-app/ng-table"
+	dir = new File(arrestedPluginDir, ngtblLoc)
+	copy(todir: new File(basedir, ngTblView)) {
+		fileset dir: dir
+	}
+	dir.eachFileRecurse{
+		f -> if (f.isDirectory()) {
+			if (!okToWrite("${basedir}/${ngTblView}/$f.name")) {
+				return
+			}
+			println "Creating ${appStyle} ng-table folder: $f.name"
+			dir = new File(arrestedPluginDir, "${ngtblLoc}/$f.name")
+			copy(todir: new File(basedir, ngTblView+'/'+f.name)) {
+				fileset dir: dir
+			}
+		}
+		
+	}
 	
+
+
+			
 	def navbar = createTemplate(engine, 'views/layouts/_navbar.gsp', addConf)
 	writeToFile("grails-app/views/layouts/_navbar.gsp",navbar.toString())
 	
@@ -554,12 +648,15 @@ target(createControllerGsp: "Create the angular controller.gsp template") {
 	def cpathUser=verifyGrailsVersion(appVersion, 'js', 'custom-'+appName)
 	names.each {
 		if (new File("${basedir}/${cpathUser}/${it.className}Ctrl.js").exists()) {
+			rul.append('<shiro:hasPermission permission="').append(it.propertyName).append(':*">\n')
 			rul.append('\t <a  ng-class="isSelected(\'').append(it.propertyName).append('\')')
 			rul.append('? \'btn btn-primary\' :\'btn btn-default\'"  ng-click="setSelectedController(\'').append(it.propertyName).append('\')" ')
 			rul.append('onclick=\'window.location.href="#/').append(it.propertyName).append('/list"\' ')
 			rul.append('title="\${message(code: \'default.').append(it.propertyName).append('.label\', default: \'').append(it.className).append('\')}">\n')
 			rul.append('\t\t<g:message code="default.').append(it.propertyName).append('}.label"  default="').append(it.className).append('"/>\n')
 			rul.append('\t</a>\n')
+			rul.append('</shiro:hasPermission>\n')
+			
 		}
 	}
 	def rulConf = [arrestedControllers: rul]

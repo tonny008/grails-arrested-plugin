@@ -123,6 +123,7 @@ function UserCtrl(\$cookieStore,\$rootScope,\$scope, DAO){
         	\$rootScope.errors.showErrors = true;
         	\$rootScope.errors.showServerError = true;
         	\$rootScope.errors.errorMessages.push(''+error.status+' '+error.data);
+        	\$rootScope.appConfig = {appName:'testingarrested', token:''};
         	\$rootScope.loadingSite=false;
         });
 	};

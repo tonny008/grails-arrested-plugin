@@ -10,6 +10,7 @@ import org.apache.shiro.web.util.SavedRequest
 import org.apache.shiro.web.util.WebUtils
 import org.apache.shiro.SecurityUtils
 
+
 class AuthController extends ArrestedController {
 	
     static allowedMethods = [login: "POST", logout: "GET"]
@@ -133,7 +134,8 @@ class AuthController extends ArrestedController {
 						user.save(flush: true) 
 					}else if(token.lastUpdated.time > valid.time || !token.valid){ 
 						token.token = UUID.randomUUID() 
-						token.valid = true token.save(flush: true) 
+						token.valid = true 
+						token.save(flush: true) 
 					} 
 					withFormat{ 
 						xml { 
@@ -228,5 +230,12 @@ class AuthController extends ArrestedController {
         else{
             renderMissingParam("${message(code: 'default.token.missing.label', default: 'Token missing')}")
         }
+		signOut()
     }
+	
+	def signOut = {
+		if (SecurityUtils.subject.principal) {
+			SecurityUtils.subject?.logout()
+		}
+	}
 }

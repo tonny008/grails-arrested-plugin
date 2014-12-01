@@ -9,7 +9,7 @@ AngularJs + RESTful = Arrested
 # Installation:
 
 Add plugin Dependency in BuildConfig.groovy :
->compile ":arrested:1.37"
+>compile ":arrested:1.38"
 
 ## Installation information warning
 
@@ -99,16 +99,13 @@ class BootStrap {
 ```
 
 
-##Config.groovy requirements for key 'arrested':
+##Config.groovy default signup role:
 ```
-arrested.dateFormat="yyyy-MM-dd'T'HH:mm:ss"
+// if not defined Administrator will be default value
+// You must intially create this role via bootstrap or manually
+// refer to example bootstrap above
+arrested.signup.role='Administrator' 
 
-
-arrested.signup.role='Administrator' //if not defined Administrator will be default value
-
-arrested.supported.i18n=['en','de','es_PE','es']
-// For all locales simply enable this:
-arrested.supported.i18n=['*']
 ```
 
 
@@ -162,6 +159,12 @@ arrested.signup.role='Administrator' //if not defined Administrator will be defa
 ### Version info:
 
 ```
+1.38 :	Removed extra documentation + obselete config file call.
+		Modified logout process so on error it resets token. This was causing issue during test mode 
+		whilst app restarts taking place.
+		Changed type="date" to type="text" for date Fields, this was causing issues in Chrome.
+		bs-datepicker now working in Chrome/Firefox
+		
 1.37 :	Moved spring/resources.groovy withing plugin src/configuration, 
 		appended _ArrestedInternal and create-arrested-app scripts to now call createBean
 		Removed howto update bean from documentation and appended it to warning line at the top.

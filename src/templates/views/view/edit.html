@@ -309,13 +309,15 @@
 
     private renderDateEditor(domainClass, property) {
 	    def precision = (property.type == Date || property.type == java.sql.Date || property.type == Calendar) ? "day" : "minute";
+	    
 	    if (!cp) {
-	    	return "<input type=\"date\" name=\"${property.name}\" bs-datepicker data-date-format=\"dd/MM/yyyy\" data-ng-model='${domainTitle}.${property.name}' />"
+	    	//class=\"form-control\" data-date-type=\"string\" data-autoclose=\"1\" 
+	    	return "<input type=\"text\" name=\"${property.name}\" bs-datepicker data-date-format=\"dd/MM/yyyy\" data-ng-model='${domainTitle}.${property.name}' />"
 	    } else {
 	    	if (!cp."${property.name}".editable) {
 	    		return "\${${domainInstance}?.${property.name}?.toString()}"
 	    	} else {
-	    		def sb = new StringBuilder("<input type=\"date\" name=\"${property.name}\" bs-datepicker data-date-format=\"dd/MM/yyyy\" ")
+	    		def sb = new StringBuilder("<input type=\"text\"  name=\"${property.name}\" bs-datepicker data-date-format=\"dd/MM/yyyy\" ")
 	    		if (cp."${property.name}".format) { 
 	    			sb << "format=\"${cp."${property.name}".format}\" "
 	    		}	

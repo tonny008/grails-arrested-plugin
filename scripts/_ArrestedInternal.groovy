@@ -338,7 +338,9 @@ target(createAngularIndex: "Create the angular file configuration") {
 		
 		writer.writeLine(shortname + ".config(function (\$datepickerProvider) {")
 		writer.writeLine("    angular.extend(\$datepickerProvider.defaults, {")
-		writer.writeLine("        dateFormat: 'dd-MM-yyyy',")
+		writer.writeLine("        dateFormat: 'dd/MM/yyyy',")
+		writer.writeLine("        autoclose: true,")
+		writer.writeLine("        maxDate: new Date(),")
 		writer.writeLine("        modelDateFormat: \"yyyy-MM-ddTHH:mm:ss\"")
 		writer.writeLine("    })});")
 		
